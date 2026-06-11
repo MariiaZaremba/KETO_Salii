@@ -1,5 +1,5 @@
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbyoCke9f2mXqZq2HTuiabM1FSG0weYpgHxYHc9jGD5I8xju4k9D1otnk6pm0vy2cWFvYg/exec";
+  "https://script.google.com/macros/s/AKfycbzqff59sQiDqr_SotdVfvb3mHCutXOThv-wJBQpskIRAt46785xJZ2tMMOHLB9p_4FfdA/exec";
 
 const tg = window.Telegram?.WebApp;
 const user = tg?.initDataUnsafe?.user;
