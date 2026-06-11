@@ -8,9 +8,6 @@ const user = tg?.initDataUnsafe?.user;
 const params = new URLSearchParams(window.location.search);
 const contactId = params.get("contact_id");
 
-alert("chat_id: " + data.chat_id);
-alert(window.location.href);
-
 document.getElementById("ketoForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
@@ -31,6 +28,8 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
   resultDiv.classList.remove("hidden");
   resultDiv.innerHTML = "<p>⏳ Рахуємо...</p>";
 
+alert("chat_id: " + data.chat_id);
+alert(window.location.href);
   
   try {
     const response = await fetch(API_URL, {
