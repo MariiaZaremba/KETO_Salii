@@ -1,3 +1,6 @@
+const params = new URLSearchParams(window.location.search);
+const chatIdFromUrl = params.get("chat_id");
+
 const API_URL = "https://script.google.com/macros/s/AKfycbzqff59sQiDqr_SotdVfvb3mHCutXOThv-wJBQpskIRAt46785xJZ2tMMOHLB9p_4FfdA/exec";
 
 const tg = window.Telegram?.WebApp;
@@ -28,9 +31,6 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
   resultDiv.classList.remove("hidden");
   resultDiv.innerHTML = "<p>⏳ Рахуємо...</p>";
 
-alert("chat_id: " + data.chat_id);
-alert(window.location.href);
-  
   try {
     const response = await fetch(API_URL, {
       method: "POST",
