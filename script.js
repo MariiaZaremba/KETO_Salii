@@ -1,5 +1,6 @@
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbwlZ5DilDfuLA2ZtfJnQ59VTNFeRBjytmd4nx8QN6B_nUlQkX_JClkBeqSvokG6vWbhZg/exec";
+  "https://script.google.com/macros/s/AKfycby6hbO8QGRGuJFkoTSVdfz_EX4LeShoqMKoU1ug84TKQYXvvJGAElRS9nnobJYiRqHjrQ/exec";
+
 
 document.getElementById("ketoForm").addEventListener("submit", async function (e) {
   e.preventDefault();
