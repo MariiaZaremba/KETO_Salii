@@ -18,7 +18,8 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
     weight: document.getElementById("weight").value,
     height: document.getElementById("height").value,
     activity: document.getElementById("activity").value,
-    chat_id: user?.id
+    chat_id: user?.id,
+    contact_id: contactId
   };
 
   console.log("chat_id:", data.chat_id);
