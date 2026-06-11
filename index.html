@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Кето КБЖВ</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Кето КБЖВ</h1>
+    <p class="subtitle">
+      Заповніть анкету та отримайте PDF з розрахунком калорій, білків, жирів і вуглеводів.
+    </p>
+
+    <form id="ketoForm">
+      <label>
+        Ім’я
+        <input type="text" id="name" placeholder="Ваше ім’я" required />
+      </label>
+
+      <label>
+        Стать
+        <select id="gender" required>
+          <option value="">Оберіть стать</option>
+          <option value="female">Жінка</option>
+          <option value="male">Чоловік</option>
+        </select>
+      </label>
+
+      <label>
+        Вік
+        <input type="number" id="age" placeholder="Наприклад: 36" required />
+      </label>
+
+      <label>
+        Вага, кг
+        <input type="number" id="weight" placeholder="Наприклад: 80" required />
+      </label>
+
+      <label>
+        Зріст, см
+        <input type="number" id="height" placeholder="Наприклад: 170" required />
+      </label>
+
+      <label>
+        Активність
+        <select id="activity" required>
+          <option value="">Оберіть рівень активності</option>
+          <option value="1.2">Сидячий спосіб життя</option>
+          <option value="1.375">Легка активність</option>
+          <option value="1.55">Помірна активність</option>
+          <option value="1.725">Висока активність</option>
+          <option value="1.9">Дуже висока активність</option>
+        </select>
+      </label>
+
+      <button type="submit">Отримати PDF</button>
+    </form>
+
+    <div id="result" class="result hidden"></div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
