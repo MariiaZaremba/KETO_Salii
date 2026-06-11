@@ -24,8 +24,6 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
     chat_id: chatIdFromUrl
   };
 
-  alert("chat_id: " + chatIdFromUrl);
-
   const resultDiv = document.getElementById("result");
   resultDiv.classList.remove("hidden");
   resultDiv.innerHTML = "<p>⏳ Рахуємо...</p>";
