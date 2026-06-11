@@ -1,12 +1,9 @@
+const API_URL = "ТВОЄ_GOOGLE_APPS_SCRIPT_URL";
+
 const params = new URLSearchParams(window.location.search);
 const chatIdFromUrl = params.get("chat_id");
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzqff59sQiDqr_SotdVfvb3mHCutXOThv-wJBQpskIRAt46785xJZ2tMMOHLB9p_4FfdA/exec";
-
-const tg = window.Telegram?.WebApp;
-tg?.ready();
-
-const user = tg?.initDataUnsafe?.user;
+alert("chat_id: " + chatIdFromUrl);
 
 const params = new URLSearchParams(window.location.search);
 const contactId = params.get("contact_id");
