@@ -1,44 +1,62 @@
-document.getElementById("ketoForm").addEventListener("submit", function (e) {
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbwlZ5DilDfuLA2ZtfJnQ59VTNFeRBjytmd4nx8QN6B_nUlQkX_JClkBeqSvokG6vWbhZg/exec";
+
+document.getElementById("ketoForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const name = document.getElementById("name").value;
-  const gender = document.getElementById("gender").value;
-  const age = Number(document.getElementById("age").value);
-  const weight = Number(document.getElementById("weight").value);
-  const height = Number(document.getElementById("height").value);
-  const activity = Number(document.getElementById("activity").value);
-
-  let bmr;
-
-  if (gender === "female") {
-    bmr = 10 * weight + 6.25 * height - 5 * age - 161;
-  } else {
-    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-  }
-
-  const tdee = bmr * activity;
-  const calories = tdee * 0.9;
-
-  const carbs = 25;
-  const protein = weight * 1.6;
-
-  const carbsCalories = carbs * 4;
-  const proteinCalories = protein * 4;
-  const fatCalories = calories - carbsCalories - proteinCalories;
-  const fat = fatCalories / 9;
+  const data = {
+    name: document.getElementById("name").value,
+    gender: document.getElementById("gender").value,
+    age: document.getElementById("age").value,
+    weight: document.getElementById("weight").value,
+    height: document.getElementById("height").value,
+    activity: document.getElementById("activity").value
+  };
 
   const resultDiv = document.getElementById("result");
 
-  resultDiv.innerHTML = `
-    <h2>${name}, ваш розрахунок:</h2>
-    <p><strong>BMR:</strong> ${Math.round(bmr)} ккал</p>
-    <p><strong>TDEE:</strong> ${Math.round(tdee)} ккал</p>
-    <p><strong>Калорії для схуднення:</strong> ${Math.round(calories)} ккал</p>
-    <hr>
-    <p><strong>Білки:</strong> ${Math.round(protein)} г</p>
-    <p><strong>Жири:</strong> ${Math.round(fat)} г</p>
-    <p><strong>Вуглеводи:</strong> ${carbs} г</p>
-  `;
-
   resultDiv.classList.remove("hidden");
+  resultDiv.innerHTML = "<p>⏳ Генеруємо PDF...</p>";
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    const responseData = await response.json();
+
+    resultDiv.innerHTML = `
+      <h2>${data.name}, ваш розрахунок готовий 🎉</h2>
+
+      <p><strong>Калорії:</strong> ${responseData.result.calories} ккал</p>
+      <p><strong>Білки:</strong> ${responseData.result.protein} г</p>
+      <p><strong>Жири:</strong> ${responseData.result.fat} г</p>
+      <p><strong>Вуглеводи:</strong> ${responseData.result.carbs} г</p>
+
+      <br>
+
+      <a href="${responseData.pdfUrl}"
+         target="_blank"
+         style="
+           display:inline-block;
+           background:#222;
+           color:white;
+           padding:14px 20px;
+           border-radius:12px;
+           text-decoration:none;
+         ">
+         Завантажити PDF
+      </a>
+    `;
+  } catch (error) {
+    console.error(error);
+
+    resultDiv.innerHTML = `
+      <p>❌ Помилка при створенні PDF.</p>
+    `;
+  }
 });
