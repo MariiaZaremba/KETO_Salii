@@ -22,7 +22,7 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
     contact_id: contactId
   };
 
-  console.log("chat_id:", data.chat_id);
+  alert("contact_id: " + contactId);
 
   const resultDiv = document.getElementById("result");
   resultDiv.classList.remove("hidden");
