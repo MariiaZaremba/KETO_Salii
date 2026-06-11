@@ -5,6 +5,9 @@ tg?.ready();
 
 const user = tg?.initDataUnsafe?.user;
 
+const params = new URLSearchParams(window.location.search);
+const contactId = params.get("contact_id");
+
 document.getElementById("ketoForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
