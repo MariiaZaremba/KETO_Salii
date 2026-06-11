@@ -1,6 +1,8 @@
 const API_URL =
   "https://script.google.com/macros/s/AKfycbyoCke9f2mXqZq2HTuiabM1FSG0weYpgHxYHc9jGD5I8xju4k9D1otnk6pm0vy2cWFvYg/exec";
 
+const tg = window.Telegram?.WebApp;
+const user = tg?.initDataUnsafe?.user;
 
 document.getElementById("ketoForm").addEventListener("submit", async function (e) {
   e.preventDefault();
@@ -11,7 +13,8 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
     age: document.getElementById("age").value,
     weight: document.getElementById("weight").value,
     height: document.getElementById("height").value,
-    activity: document.getElementById("activity").value
+    activity: document.getElementById("activity").value,
+    chat_id: user?.id
   };
 
   const resultDiv = document.getElementById("result");
