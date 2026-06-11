@@ -21,11 +21,10 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
     weight: document.getElementById("weight").value,
     height: document.getElementById("height").value,
     activity: document.getElementById("activity").value,
-    chat_id: user?.id,
-    contact_id: contactId
+    chat_id: chatIdFromUrl
   };
 
-  alert("contact_id: " + contactId);
+  alert("chat_id: " + chatIdFromUrl);
 
   const resultDiv = document.getElementById("result");
   resultDiv.classList.remove("hidden");
