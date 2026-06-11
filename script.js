@@ -24,6 +24,9 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
   resultDiv.classList.remove("hidden");
   resultDiv.innerHTML = "<p>⏳ Рахуємо...</p>";
 
+alert("chat_id: " + data.chat_id);
+
+  
   try {
     const response = await fetch(API_URL, {
       method: "POST",
