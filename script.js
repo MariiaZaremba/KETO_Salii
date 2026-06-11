@@ -1,3 +1,5 @@
+alert("script.js loaded");
+
 const API_URL = "https://script.google.com/macros/s/AKfycbzqff59sQiDqr_SotdVfvb3mHCutXOThv-wJBQpskIRAt46785xJZ2tMMOHLB9p_4FfdA/exec";
 
 const params = new URLSearchParams(window.location.search);
@@ -5,11 +7,12 @@ const chatIdFromUrl = params.get("chat_id");
 
 alert("chat_id: " + chatIdFromUrl);
 
-const params = new URLSearchParams(window.location.search);
-const contactId = params.get("contact_id");
+const form = document.getElementById("ketoForm");
 
-document.getElementById("ketoForm").addEventListener("submit", async function (e) {
+form.addEventListener("submit", async function (e) {
   e.preventDefault();
+
+  alert("button clicked");
 
   const data = {
     name: document.getElementById("name").value,
@@ -20,6 +23,8 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
     activity: document.getElementById("activity").value,
     chat_id: chatIdFromUrl
   };
+
+  console.log(data);
 
   const resultDiv = document.getElementById("result");
   resultDiv.classList.remove("hidden");
@@ -35,7 +40,7 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
 
     resultDiv.innerHTML = `
       <h2>${data.name}, ваш розрахунок готовий 🎉</h2>
-      <p>PDF надіслано в чат-бот ✅</p>
+      <p>PDF має бути надіслано в чат ✅</p>
 
       <p><strong>Калорії:</strong> ${responseData.result.targetCalories} ккал</p>
       <p><strong>Білки:</strong> ${responseData.result.protein} г</p>
