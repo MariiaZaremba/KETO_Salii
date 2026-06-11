@@ -20,7 +20,7 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
   const resultDiv = document.getElementById("result");
 
   resultDiv.classList.remove("hidden");
-  resultDiv.innerHTML = "<p>⏳ Генеруємо PDF...</p>";
+  resultDiv.innerHTML = "<p>⏳ Рахуємо...</p>";
 
   try {
     const response = await fetch(API_URL, {
