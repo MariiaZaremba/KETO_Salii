@@ -30,7 +30,7 @@ document.getElementById("ketoForm").addEventListener("submit", async function (e
     resultDiv.innerHTML = `
       <h2>${data.name}, ваш розрахунок готовий 🎉</h2>
 
-      <p><strong>Калорії:</strong> ${responseData.result.calories} ккал</p>
+      <p><strong>Калорії:</strong> ${responseData.result.targetCalories} ккал</p>
       <p><strong>Білки:</strong> ${responseData.result.protein} г</p>
       <p><strong>Жири:</strong> ${responseData.result.fat} г</p>
       <p><strong>Вуглеводи:</strong> ${responseData.result.carbs} г</p>
