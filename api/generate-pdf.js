@@ -21,12 +21,12 @@ export default async function handler(req, res) {
     let telegramResponse = null;
 
     if (data.chat_id) {
-      telegramResponse = await sendPdfToTelegram(
-        data.chat_id,
-        pdfBuffer,
-        `keto_calculation_${data.name || "client"}_${Date.now()}.pdf`
-      );
-    }
+  telegramResponse = await sendPdfToTelegram(
+    data.chat_id,
+    pdfBuffer,
+    `Кето_розрахунок_${data.name || "Клієнт"}.pdf`
+  );
+}
 
     return res.status(200).json({
       success: true,
