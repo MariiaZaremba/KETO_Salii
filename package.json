@@ -1,4 +1,6 @@
 {
+  "name": "keto-salii",
+  "version": "1.0.0",
   "dependencies": {
     "pdfkit": "^0.15.0"
   }
