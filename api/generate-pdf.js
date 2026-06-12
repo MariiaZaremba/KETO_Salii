@@ -78,14 +78,14 @@ function createPdfBuffer(data, result) {
     fr(0, HERO_H - 50, PW, 50, C.heroBot);
     doc.save().circle(PW - 50, -30, 140).fill("#162F22").restore();
 
-    doc.save().circle(54, 54, 22).fill(C.heroAccent).restore();
-    doc.font(font).fillColor(C.white).fontSize(16).text("К", 47, 45);
+    //doc.save().circle(54, 54, 22).fill(C.heroAccent).restore();
+    //doc.font(font).fillColor(C.white).fontSize(16).text("К", 47, 45);
 
     doc.font(font).fillColor(C.white).fontSize(26)
-      .text("Кето-план харчування", 90, 38, { lineBreak: false });
+      .text("Кето-план харчування", 40, 38, { lineBreak: false });
     doc.font(font).fillColor(C.heroAccent).fontSize(12)
-      .text(`Персональний розрахунок для ${data.name || "клієнтки"}`, 90, 72);
-    fr(90, 90, 140, 2, C.greenMid);
+      .text(`Персональний розрахунок для ${data.name || "клієнтки"}`, 40, 72);
+    fr(40, 90, 140, 2, C.greenMid);
 
     rr(40, 108, PW - 80, 90, 14, C.heroCard);
     doc.font(font).fillColor(C.heroAccent).fontSize(9)
