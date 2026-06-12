@@ -91,7 +91,7 @@ function createPdfBuffer(data, result) {
     doc.font(font).fillColor(C.heroAccent).fontSize(9)
       .text("ВАША НОРМА КАЛОРIЙ", 65, 125, { characterSpacing: 1.2 });
     doc.font(font).fillColor(C.white).fontSize(32)
-      .text(`${result.targetCalories} ккал`, 60, 140, { lineBreak: false });
+      .text(`${result.targetCalories} ккал`, 60, 135, { lineBreak: false });
     doc.font(font).fillColor(C.textFaint).fontSize(10)
       .text("* на день для схуднення", 85, 179);
 
