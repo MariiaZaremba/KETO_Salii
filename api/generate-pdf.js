@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     if (!data) {
       throw new Error("No data received");
     }
-
+const today = new Date().toISOString().split("T")[0];
     const result = calculateKeto(data);
     const pdfBuffer = await createPdfBuffer(data, result);
 
@@ -24,10 +24,11 @@ export default async function handler(req, res) {
   telegramResponse = await sendPdfToTelegram(
     data.chat_id,
     pdfBuffer,
-    `Кето_розрахунок_${data.name || "Клієнт"}.pdf`
+    `Кето_розрахунок_${data.name}_${today}.pdf`
   );
 }
 
+    
     return res.status(200).json({
       success: true,
       result,
