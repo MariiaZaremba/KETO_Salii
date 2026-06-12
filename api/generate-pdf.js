@@ -103,37 +103,69 @@ function createPdfBuffer(data, result) {
     const fontPath = path.join(process.cwd(), "fonts","NotoSans-Regular.ttf");
     doc.font(fontPath);
 
-    doc.fontSize(22).text("Ваш кето-розрахунок", { align: "center" });
-    doc.moveDown();
+    doc.rect(0, 0, doc.page.width, 140).fill("#EEF7E8");
 
-    doc.fontSize(12);
-    doc.text(`Ім’я: ${data.name || "-"}`);
-    doc.text(`Вік: ${data.age}`);
-    doc.text(`Вага: ${data.weight} кг`);
-    doc.text(`Зріст: ${data.height} см`);
+doc.fillColor("#1F3D2B");
+doc.fontSize(28).text("🥑 Кето-план", 50, 45);
 
-    doc.moveDown();
-    doc.fontSize(16).text("Результат");
-    doc.moveDown(0.5);
+doc.fontSize(12).fillColor("#4F6F52");
+doc.text(`Персональний розрахунок для ${data.name || "клієнтки"}`, 50, 82);
 
-    doc.fontSize(12);
-    doc.text(`BMR: ${result.bmr} ккал`);
-    doc.text(`TDEE: ${result.tdee} ккал`);
-    doc.text(`Калорії для схуднення: ${result.targetCalories} ккал/день`);
+doc.moveDown();
 
-    doc.moveDown();
-    doc.fontSize(16).text("Кето КБЖВ");
-    doc.moveDown(0.5);
+doc.fillColor("#1F1F1F");
 
-    doc.fontSize(12);
-    doc.text(`Білки: ${result.protein} г — ${result.proteinPercent}%`);
-    doc.text(`Жири: ${result.fat} г — ${result.fatPercent}%`);
-    doc.text(`Вуглеводи: ${result.carbs} г — ${result.carbsPercent}%`);
+doc.roundedRect(50, 170, 495, 95, 16).fill("#F8FBF5");
+doc.fillColor("#6A8F4E").fontSize(12).text("Калорійність для схуднення", 75, 195);
+doc.fillColor("#1F3D2B").fontSize(34).text(`${result.targetCalories} ккал/день`, 75, 215);
 
-    doc.moveDown(2);
-    doc.fontSize(10).fillColor("gray");
-    doc.text("Розрахунок є орієнтовним і не замінює консультацію лікаря або дієтолога.");
+doc.fillColor("#1F1F1F").fontSize(16).text("Ваші кето КБЖВ", 50, 310);
 
+const boxY = 345;
+const boxW = 155;
+const gap = 15;
+
+doc.roundedRect(50, boxY, boxW, 90, 14).fill("#FFF7E8");
+doc.fillColor("#8A5A00").fontSize(12).text("Білки", 70, boxY + 18);
+doc.fillColor("#1F1F1F").fontSize(24).text(`${result.protein} г`, 70, boxY + 42);
+doc.fontSize(10).fillColor("#777").text(`${result.proteinPercent}% калорій`, 70, boxY + 68);
+
+doc.roundedRect(50 + boxW + gap, boxY, boxW, 90, 14).fill("#EEF7E8");
+doc.fillColor("#4F6F52").fontSize(12).text("Жири", 70 + boxW + gap, boxY + 18);
+doc.fillColor("#1F1F1F").fontSize(24).text(`${result.fat} г`, 70 + boxW + gap, boxY + 42);
+doc.fontSize(10).fillColor("#777").text(`${result.fatPercent}% калорій`, 70 + boxW + gap, boxY + 68);
+
+doc.roundedRect(50 + (boxW + gap) * 2, boxY, boxW, 90, 14).fill("#F1F5F9");
+doc.fillColor("#475569").fontSize(12).text("Вуглеводи", 70 + (boxW + gap) * 2, boxY + 18);
+doc.fillColor("#1F1F1F").fontSize(24).text(`${result.carbs} г`, 70 + (boxW + gap) * 2, boxY + 42);
+doc.fontSize(10).fillColor("#777").text(`${result.carbsPercent}% калорій`, 70 + (boxW + gap) * 2, boxY + 68);
+
+doc.fillColor("#1F1F1F").fontSize(16).text("Деталі розрахунку", 50, 480);
+
+doc.fontSize(12).fillColor("#333");
+doc.text(`Ім’я: ${data.name || "-"}`, 50, 515);
+doc.text(`Вік: ${data.age}`);
+doc.text(`Вага: ${data.weight} кг`);
+doc.text(`Зріст: ${data.height} см`);
+
+doc.text(`BMR: ${result.bmr} ккал`, 300, 515);
+doc.text(`TDEE: ${result.tdee} ккал`);
+doc.text(`Ціль: ${result.targetCalories} ккал/день`);
+
+doc.roundedRect(50, 635, 495, 80, 14).fill("#FAFAFA");
+doc.fillColor("#555").fontSize(11).text(
+  "Цей розрахунок є орієнтовною стартовою точкою. Спостерігайте за самопочуттям, енергією, голодом і прогресом протягом 2–3 тижнів.",
+  70,
+  655,
+  { width: 455 }
+);
+
+doc.fillColor("#999").fontSize(9).text(
+  "Розрахунок не замінює консультацію лікаря або дієтолога.",
+  50,
+  760,
+  { align: "center" }
+);
     doc.end();
   });
 }
@@ -144,7 +176,7 @@ async function sendPdfToTelegram(chatId, pdfBuffer, fileName) {
   const formData = new FormData();
 
   formData.append("chat_id", String(chatId));
-  formData.append("caption", "Ваш кето-розрахунок готовий 🥑");
+  formData.append("caption", "Ваш кето-план готовий 🥑");
 
   const blob = new Blob([pdfBuffer], { type: "application/pdf" });
   formData.append("document", blob, fileName);
