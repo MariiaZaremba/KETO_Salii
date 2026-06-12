@@ -1,7 +1,7 @@
 import PDFDocument from "pdfkit";
 import path from "path";
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_BOT_TOKEN_KETO = process.env.TELEGRAM_BOT_TOKEN_KETO;
 
 export default async function handler(req, res) {
   try {
@@ -138,7 +138,7 @@ function createPdfBuffer(data, result) {
 }
 
 async function sendPdfToTelegram(chatId, pdfBuffer, fileName) {
-  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`;
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN_KETO}/sendDocument`;
 
   const formData = new FormData();
 
