@@ -1,18 +1,13 @@
-alert("script.js loaded");
-
 const API_URL = "https://script.google.com/macros/s/AKfycbzqff59sQiDqr_SotdVfvb3mHCutXOThv-wJBQpskIRAt46785xJZ2tMMOHLB9p_4FfdA/exec";
 
 const params = new URLSearchParams(window.location.search);
 const chatIdFromUrl = params.get("chat_id");
 
-alert("chat_id: " + chatIdFromUrl);
 
 const form = document.getElementById("ketoForm");
 
 form.addEventListener("submit", async function (e) {
   e.preventDefault();
-
-  alert("button clicked");
 
   const data = {
     name: document.getElementById("name").value,
