@@ -1,5 +1,6 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzqff59sQiDqr_SotdVfvb3mHCutXOThv-wJBQpskIRAt46785xJZ2tMMOHLB9p_4FfdA/exec";
 
+
 const params = new URLSearchParams(window.location.search);
 const chatIdFromUrl = params.get("chat_id");
 
