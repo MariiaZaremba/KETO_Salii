@@ -53,8 +53,8 @@ function createPdfBuffer(data, result) {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    const FONT_REG  = path.join(process.cwd(), "fonts", "NotoSans-Regular.ttf");
-    const FONT_BOLD = path.join(process.cwd(), "fonts", "NotoSans-Bold.ttf");
+    
+    const font = path.join(process.cwd(), "fonts", "NotoSans-Regular.ttf");
 
     const PW = doc.page.width;
     const PH = doc.page.height;
@@ -78,21 +78,21 @@ function createPdfBuffer(data, result) {
     fr(0, HERO_H - 50, PW, 50, C.heroBot);
     doc.save().circle(PW - 50, -30, 140).fill("#162F22").restore();
 
-    //doc.save().circle(54, 54, 22).fill(C.heroAccent).restore();
-    //doc.font(FONT_BOLD).fillColor(C.white).fontSize(16).text("К", 47, 45);
+    doc.save().circle(54, 54, 22).fill(C.heroAccent).restore();
+    doc.font(font).fillColor(C.white).fontSize(16).text("К", 47, 45);
 
-    doc.font(FONT_BOLD).fillColor(C.white).fontSize(26)
+    doc.font(font).fillColor(C.white).fontSize(26)
       .text("Кето-план харчування", 90, 38, { lineBreak: false });
-    doc.font(FONT_REG).fillColor(C.heroAccent).fontSize(12)
+    doc.font(font).fillColor(C.heroAccent).fontSize(12)
       .text(`Персональний розрахунок для ${data.name || "клієнтки"}`, 90, 72);
     fr(90, 90, 140, 2, C.greenMid);
 
     rr(40, 108, PW - 80, 90, 14, C.heroCard);
-    doc.font(FONT_REG).fillColor(C.heroAccent).fontSize(9)
+    doc.font(font).fillColor(C.heroAccent).fontSize(9)
       .text("ВАША НОРМА КАЛОРIЙ", 65, 125, { characterSpacing: 1.2 });
-    doc.font(FONT_BOLD).fillColor(C.white).fontSize(32)
+    doc.font(font).fillColor(C.white).fontSize(32)
       .text(`${result.targetCalories} ккал`, 65, 140, { lineBreak: false });
-    doc.font(FONT_REG).fillColor(C.textFaint).fontSize(10)
+    doc.font(font).fillColor(C.textFaint).fontSize(10)
       .text("на день для схуднення", 65, 179);
 
     // Декоративні кола замість емодзі авокадо
@@ -105,7 +105,7 @@ function createPdfBuffer(data, result) {
 
     // КБЖВ
     const SEC1_Y = HERO_H + 28;
-    doc.font(FONT_BOLD).fillColor(C.text).fontSize(14).text("Вашi кето КБЖВ", 40, SEC1_Y);
+    doc.font(font).fillColor(C.text).fontSize(14).text("Вашi кето КБЖВ", 40, SEC1_Y);
     dv(40, SEC1_Y + 22, PW - 80);
 
     const CARD_Y = SEC1_Y + 34, CARD_H = 108, CARD_GAP = 13;
@@ -120,15 +120,15 @@ function createPdfBuffer(data, result) {
       const cx = 40 + i * (CARD_W + CARD_GAP);
       rr(cx, CARD_Y, CARD_W, CARD_H, 12, card.bg);
       fr(cx + 12, CARD_Y, CARD_W - 24, 4, card.accent);
-      doc.font(FONT_REG).fillColor(card.accent).fontSize(9)
+      doc.font(font).fillColor(card.accent).fontSize(9)
         .text(card.label, cx + 16, CARD_Y + 16, { characterSpacing: 1.4 });
-      doc.font(FONT_BOLD).fillColor(C.text).fontSize(28).text(card.val, cx + 16, CARD_Y + 32);
-      doc.font(FONT_REG).fillColor(card.accent).fontSize(10).text(card.sub, cx + 16, CARD_Y + 80);
+      doc.font(font).fillColor(C.text).fontSize(28).text(card.val, cx + 16, CARD_Y + 32);
+      doc.font(font).fillColor(card.accent).fontSize(10).text(card.sub, cx + 16, CARD_Y + 80);
     });
 
     // ПРОГРЕС-БАР
     const BAR_Y = CARD_Y + CARD_H + 26, BAR_W = PW - 80, BAR_H = 12;
-    doc.font(FONT_REG).fillColor(C.orange).fontSize(8).text("Бiлки 25%", 40, BAR_Y - 14);
+    doc.font(font).fillColor(C.orange).fontSize(8).text("Бiлки 25%", 40, BAR_Y - 14);
     doc.fillColor(C.green).text("Жири 70%", 40 + Math.round(BAR_W * 0.25) + 4, BAR_Y - 14);
     doc.fillColor(C.purple).text("Вуглеводи 5%", 40 + BAR_W - 62, BAR_Y - 14);
     rr(40, BAR_Y, BAR_W, BAR_H, 6, "#D5E8CC");
@@ -139,32 +139,32 @@ function createPdfBuffer(data, result) {
 
     // ДЕТАЛI
     const SEC2_Y = BAR_Y + BAR_H + 32;
-    doc.font(FONT_BOLD).fillColor(C.text).fontSize(14).text("Деталi розрахунку", 40, SEC2_Y);
+    doc.font(font).fillColor(C.text).fontSize(14).text("Деталi розрахунку", 40, SEC2_Y);
     dv(40, SEC2_Y + 22, PW - 80);
 
     const DET_Y = SEC2_Y + 34, DET_H = 148, DET_W = Math.floor((PW - 80 - 13) / 2), d2x = 40 + DET_W + 13;
 
     rr(40, DET_Y, DET_W, DET_H, 10, C.white);
     fr(40, DET_Y, 4, DET_H, C.greenMid);
-    doc.font(FONT_REG).fillColor(C.textMid).fontSize(9)
+    doc.font(font).fillColor(C.textMid).fontSize(9)
       .text("ОСОБИСТI ДАНI", 58, DET_Y + 14, { characterSpacing: 1 });
     [["Iм'я", data.name||"-"], ["Вiк",`${data.age} рокiв`], ["Вага",`${data.weight} кг`], ["Зрiст",`${data.height} см`]]
       .forEach(([k,v],i) => {
         const ry = DET_Y + 34 + i * 26;
-        doc.font(FONT_REG).fillColor(C.textLight).fontSize(8).text(k, 58, ry);
-        doc.font(FONT_BOLD).fillColor(C.text).fontSize(11).text(v, 130, ry);
+        doc.font(font).fillColor(C.textLight).fontSize(8).text(k, 58, ry);
+        doc.font(font).fillColor(C.text).fontSize(11).text(v, 130, ry);
         if (i < 3) dv(58, ry + 18, DET_W - 36, "#EDF5EA");
       });
 
     rr(d2x, DET_Y, DET_W, DET_H, 10, C.white);
     fr(d2x, DET_Y, 4, DET_H, C.orange);
-    doc.font(FONT_REG).fillColor(C.textMid).fontSize(9)
+    doc.font(font).fillColor(C.textMid).fontSize(9)
       .text("МЕТАБОЛIЗМ", d2x + 18, DET_Y + 14, { characterSpacing: 1 });
     [["BMR (базовий обмiн)",`${result.bmr} ккал`], ["TDEE (з активнiстю)",`${result.tdee} ккал`], ["Цiль (-10%)",`${result.targetCalories} ккал`]]
       .forEach(([k,v],i) => {
         const ry = DET_Y + 34 + i * 34;
-        doc.font(FONT_REG).fillColor(C.textLight).fontSize(8).text(k, d2x + 18, ry);
-        doc.font(FONT_BOLD).fillColor(C.text).fontSize(12).text(v, d2x + 18, ry + 13);
+        doc.font(font).fillColor(C.textLight).fontSize(8).text(k, d2x + 18, ry);
+        doc.font(font).fillColor(C.text).fontSize(12).text(v, d2x + 18, ry + 13);
         if (i < 2) dv(d2x + 18, ry + 28, DET_W - 36, "#EDF5EA");
       });
 
@@ -176,7 +176,7 @@ function createPdfBuffer(data, result) {
     doc.save()
       .polygon([60, NOTE_Y+24], [68, NOTE_Y+16], [76, NOTE_Y+24], [68, NOTE_Y+32])
       .fill(C.greenMid).restore();
-    doc.font(FONT_REG).fillColor(C.textMid).fontSize(10).text(
+    doc.font(font).fillColor(C.textMid).fontSize(10).text(
       "Цей розрахунок є орiєнтовною стартовою точкою. Спостерiгайте за самопочуттям, " +
       "енергiєю, голодом i прогресом протягом 2-3 тижнiв.",
       84, NOTE_Y + 13, { width: PW - 140, lineGap: 3 }
@@ -185,7 +185,7 @@ function createPdfBuffer(data, result) {
     // FOOTER
     const FT_Y = PH - 44;
     fr(0, FT_Y - 6, PW, 50, C.heroTop);
-    doc.font(FONT_REG).fillColor(C.heroAccent).fontSize(9).text(
+    doc.font(font).fillColor(C.heroAccent).fontSize(9).text(
       "Розрахунок не замiнює консультацiю лiкаря або дiєтолога.",
       40, FT_Y + 5, { width: PW - 80, align: "center" }
     );
