@@ -24,7 +24,7 @@ const today = new Date().toISOString().split("T")[0];
   telegramResponse = await sendPdfToTelegram(
     data.chat_id,
     pdfBuffer,
-    `Кето_розрахунок_${data.name}_${today}.pdf`
+    `Кето_план_${data.name}_${today}.pdf`
   );
 }
 
