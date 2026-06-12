@@ -105,11 +105,15 @@ function createPdfBuffer(data, result) {
 
     doc.rect(0, 0, doc.page.width, 140).fill("#EEF7E8");
 
+
+    doc.circle(63, 58, 13).fill("#7BA05B");
+doc.fillColor("#FFFFFF").fontSize(14).text("K", 58, 51);
+
 doc.fillColor("#1F3D2B");
-doc.fontSize(28).text("🥑 Кето-план", 50, 45);
+doc.fontSize(28).text("Кето-план", 90, 45);
 
 doc.fontSize(12).fillColor("#4F6F52");
-doc.text(`Персональний розрахунок для ${data.name || "клієнтки"}`, 50, 82);
+    doc.text(`${data.name || "клієнтки"}, це ваш персональний розрахунок`);
 
 doc.moveDown();
 
