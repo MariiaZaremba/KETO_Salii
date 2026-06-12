@@ -91,21 +91,21 @@ function createPdfBuffer(data, result) {
     doc.font(font).fillColor(C.heroAccent).fontSize(9)
       .text("ВАША НОРМА КАЛОРIЙ", 65, 125, { characterSpacing: 1.2 });
     doc.font(font).fillColor(C.white).fontSize(32)
-      .text(`${result.targetCalories} ккал`, 65, 140, { lineBreak: false });
+      .text(`${result.targetCalories} ккал`, 60, 140, { lineBreak: false });
     doc.font(font).fillColor(C.textFaint).fontSize(10)
-      .text("на день для схуднення", 65, 179);
+      .text("* на день для схуднення", 85, 179);
 
     // Декоративні кола замість емодзі авокадо
-    doc.save().circle(PW - 110, 155, 32).fill("#1E5C40").restore();
-    doc.save().circle(PW - 110, 155, 20).fill("#2D7A54").restore();
-    doc.save().circle(PW - 110, 155,  8).fill(C.heroAccent).restore();
+    doc.save().circle(PW - 95, 155, 32).fill("#1E5C40").restore();
+    doc.save().circle(PW - 95, 155, 20).fill("#2D7A54").restore();
+    doc.save().circle(PW - 95, 155,  8).fill(C.heroAccent).restore();
 
     // ФОН
     fr(0, HERO_H, PW, PH - HERO_H, C.cream);
 
     // КБЖВ
     const SEC1_Y = HERO_H + 28;
-    doc.font(font).fillColor(C.text).fontSize(14).text("Вашi кето КБЖВ", 40, SEC1_Y);
+    doc.font(font).fillColor(C.text).fontSize(14).text("Вашi кето БЖВ", 40, SEC1_Y);
     dv(40, SEC1_Y + 22, PW - 80);
 
     const CARD_Y = SEC1_Y + 34, CARD_H = 108, CARD_GAP = 13;
