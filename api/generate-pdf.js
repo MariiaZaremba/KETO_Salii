@@ -96,9 +96,9 @@ function createPdfBuffer(data, result) {
       .text("на день для схуднення", 65, 179);
 
     // Декоративні кола замість емодзі авокадо
-    doc.save().circle(PW - 75, 155, 32).fill("#1E5C40").restore();
-    doc.save().circle(PW - 75, 155, 20).fill("#2D7A54").restore();
-    doc.save().circle(PW - 75, 155,  8).fill(C.heroAccent).restore();
+    doc.save().circle(PW - 110, 155, 32).fill("#1E5C40").restore();
+    doc.save().circle(PW - 110, 155, 20).fill("#2D7A54").restore();
+    doc.save().circle(PW - 110, 155,  8).fill(C.heroAccent).restore();
 
     // ФОН
     fr(0, HERO_H, PW, PH - HERO_H, C.cream);
