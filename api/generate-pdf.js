@@ -99,8 +99,8 @@ function createPdfBuffer(data, result) {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    const fontPath = path.join(process.cwd(), "fonts", "NotoSans-Regular.ttf");
-    doc.font(fontPath);
+    //const fontPath = path.join(process.cwd(), "fonts", "NotoSans-Regular.ttf");
+    //doc.font(fontPath);
 
     doc.fontSize(22).text("Ваш кето-розрахунок", { align: "center" });
     doc.moveDown();
