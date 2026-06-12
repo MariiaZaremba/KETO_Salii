@@ -53,8 +53,12 @@ form.addEventListener("submit", async function (e) {
         Відкрити PDF
       </a>
     `;
-  } catch (error) {
-    console.error(error);
-    resultDiv.innerHTML = `<p>❌ Помилка при створенні PDF.</p>`;
+ } catch (error) {
+    console.error("PDF error:", error);
+
+    resultDiv.innerHTML = `
+      <p>❌ Помилка при створенні PDF.</p>
+      <pre>${error.message}</pre>
+    `;
   }
 });
