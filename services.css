@@ -1,0 +1,152 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f8f0;
+  color: #1f2d1f;
+}
+
+.page {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 28px 18px 56px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #e9f5df, #ffffff);
+  border-radius: 28px;
+  padding: 32px 24px;
+  margin-bottom: 18px;
+  box-shadow: 0 12px 30px rgba(65, 85, 45, 0.08);
+}
+
+.badge {
+  display: inline-block;
+  background: #6f8f4e;
+  color: white;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0 0 10px;
+  font-size: 36px;
+  line-height: 1.1;
+}
+
+.hero p {
+  margin: 0;
+  color: #5f6f5a;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.services {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 24px 20px;
+  box-shadow: 0 8px 22px rgba(65, 85, 45, 0.07);
+  border: 1px solid rgba(111, 143, 78, 0.14);
+}
+
+.card.featured {
+  border: 2px solid #6f8f4e;
+  background: #fbfff7;
+}
+
+.tag {
+  display: inline-block;
+  background: #eef7e8;
+  color: #4f6f52;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+h2 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+h3 {
+  margin: 18px 0 8px;
+  font-size: 17px;
+}
+
+p {
+  font-size: 15.5px;
+  line-height: 1.6;
+  margin: 8px 0;
+}
+
+.meta {
+  color: #6f8f4e;
+  font-weight: 700;
+}
+
+ul,
+ol {
+  padding-left: 22px;
+  margin: 10px 0;
+}
+
+li {
+  font-size: 15.5px;
+  line-height: 1.55;
+  margin-bottom: 8px;
+}
+
+.button {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px 18px;
+  background: #6f8f4e;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.button.secondary {
+  background: #1f2d1f;
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 22px 14px 48px;
+  }
+
+  .hero {
+    padding: 26px 20px;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  .card {
+    padding: 22px 18px;
+  }
+}
