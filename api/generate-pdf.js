@@ -10,17 +10,13 @@ export default async function handler(req, res) {
     }
 
     const data = req.body?.payload ? JSON.parse(req.body.payload) : req.body;
-
-    if (!data) {
-      throw new Error("No data received");
-    }
+    if (!data) throw new Error("No data received");
 
     const today = new Date().toISOString().split("T")[0];
     const result = calculateKeto(data);
     const pdfBuffer = await createPdfBuffer(data, result);
 
     let telegramResponse = null;
-
     if (data.chat_id) {
       telegramResponse = await sendPdfToTelegram(
         data.chat_id,
@@ -35,404 +31,313 @@ export default async function handler(req, res) {
       sentToTelegram: Boolean(data.chat_id),
       telegramResponse
     });
-
   } catch (error) {
     console.error("ERROR:", error);
     return res.status(500).json({ success: false, error: error.message });
   }
 }
 
+// ─── Calculation ─────────────────────────────────────────────────────────────
+
 function calculateKeto(data) {
-  const gender = data.gender;
-  const age = Number(data.age);
-  const weight = Number(data.weight);
-  const height = Number(data.height);
+  const gender   = data.gender;
+  const age      = Number(data.age);
+  const weight   = Number(data.weight);
+  const height   = Number(data.height);
   const activity = Number(data.activity);
 
-  let bmr;
-  if (gender === "female") {
-    bmr = 10 * weight + 6.25 * height - 5 * age - 161;
-  } else {
-    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-  }
+  const bmr = gender === "female"
+    ? 10 * weight + 6.25 * height - 5 * age - 161
+    : 10 * weight + 6.25 * height - 5 * age + 5;
 
   const tdee = bmr * activity;
-  const caloriesForWeightLoss = tdee * 0.9;
-
-  let targetCalories = Math.round(caloriesForWeightLoss / 100) * 100;
-  if (targetCalories < bmr) {
-    targetCalories = Math.ceil(bmr / 100) * 100;
-  }
-
-  const proteinPercent = 25;
-  const fatPercent = 70;
-  const carbsPercent = 5;
-
-  const protein = (targetCalories * 0.25) / 4;
-  const fat = (targetCalories * 0.70) / 9;
-  const carbs = (targetCalories * 0.05) / 4;
+  let targetCalories = Math.round((tdee * 0.9) / 100) * 100;
+  if (targetCalories < bmr) targetCalories = Math.ceil(bmr / 100) * 100;
 
   return {
-    bmr: Math.round(bmr),
-    tdee: Math.round(tdee),
+    bmr:            Math.round(bmr),
+    tdee:           Math.round(tdee),
     targetCalories: Math.round(targetCalories),
-    protein: Math.round(protein),
-    fat: Math.round(fat),
-    carbs: Math.round(carbs),
-    proteinPercent,
-    fatPercent,
-    carbsPercent
+    protein:        Math.round((targetCalories * 0.25) / 4),
+    fat:            Math.round((targetCalories * 0.70) / 9),
+    carbs:          Math.round((targetCalories * 0.05) / 4),
+    proteinPercent: 25,
+    fatPercent:     70,
+    carbsPercent:   5
   };
 }
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Drawing helpers ─────────────────────────────────────────────────────────
 
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return [r, g, b];
+/** Rounded rect fill — always uses save/restore to avoid state leaks */
+function rr(doc, x, y, w, h, r, color) {
+  doc.save().roundedRect(x, y, w, h, r).fill(color).restore();
 }
 
-/** Draw a filled rounded rectangle */
-function roundedRect(doc, x, y, w, h, r, fillColor) {
+/** Plain rect fill */
+function fr(doc, x, y, w, h, color) {
+  doc.save().rect(x, y, w, h).fill(color).restore();
+}
+
+/** Horizontal divider */
+function divider(doc, x, y, w, color = "#E0EBD8") {
   doc.save()
-    .roundedRect(x, y, w, h, r)
-    .fill(fillColor)
+    .moveTo(x, y).lineTo(x + w, y)
+    .strokeColor(color).lineWidth(0.75).stroke()
     .restore();
-}
-
-/** Draw a thin horizontal divider */
-function divider(doc, x, y, w, color = "#E8EDE5") {
-  doc.save()
-    .moveTo(x, y)
-    .lineTo(x + w, y)
-    .strokeColor(color)
-    .lineWidth(1)
-    .stroke()
-    .restore();
-}
-
-/** Small label above a value */
-function label(doc, text, x, y, color = "#7A8C75", size = 9) {
-  doc.fillColor(color).fontSize(size).text(text, x, y);
-}
-
-/** Bold value text */
-function value(doc, text, x, y, color = "#1A2E1A", size = 22) {
-  doc.fillColor(color).fontSize(size).text(text, x, y);
 }
 
 // ─── PDF Builder ─────────────────────────────────────────────────────────────
 
 function createPdfBuffer(data, result) {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 0, size: "A4" });
+    const doc    = new PDFDocument({ margin: 0, size: "A4" });
     const chunks = [];
-
-    doc.on("data", chunk => chunks.push(chunk));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("data",  c => chunks.push(c));
+    doc.on("end",   () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
     const fontPath = path.join(process.cwd(), "fonts", "NotoSans-Regular.ttf");
     doc.font(fontPath);
 
-    const PW = doc.page.width;   // 595
-    const PH = doc.page.height;  // 842
+    const PW = doc.page.width;   // 595.28
+    const PH = doc.page.height;  // 841.89
 
-    // ── Palета ──────────────────────────────────────────────────────────────
+    // ── Палітра ──────────────────────────────────────────────────────────
     const C = {
-      heroTop:    "#1A3C2A",   // темно-зелений верх
-      heroBot:    "#2D6A4F",   // середньо-зелений
-      heroAccent: "#52B788",   // акцент
-      cream:      "#F7F5EF",   // фон сторінки
-      white:      "#FFFFFF",
-      cardBg:     "#FFFFFF",
-      border:     "#D8E8D0",
+      heroTop:      "#1A3C2A",
+      heroBot:      "#2D6A4F",
+      heroCard:     "#244D38",   // картка всередині hero (непрозора)
+      heroAccent:   "#52B788",
+      cream:        "#F4F7F1",
 
-      green:      "#2D6A4F",
-      greenLight: "#EAF4ED",
-      greenMid:   "#52B788",
+      green:        "#2D6A4F",
+      greenLight:   "#E6F2EB",
+      greenMid:     "#52B788",
 
-      orange:     "#E07B39",
-      orangeLight:"#FFF1E8",
+      orange:       "#D4692E",
+      orangeLight:  "#FEF0E6",
 
-      purple:     "#6B5B95",
-      purpleLight:"#F0EDF8",
+      purple:       "#6254A0",
+      purpleLight:  "#EDEBF8",
 
-      text:       "#1A2E1A",
-      textMid:    "#4A6045",
-      textLight:  "#7A9070",
-      textFaint:  "#A8BBA4",
+      text:         "#1A2E1A",
+      textMid:      "#3E5C40",
+      textLight:    "#6A8B6C",
+      textFaint:    "#9AB09C",
+      white:        "#FFFFFF",
     };
 
-    // ════════════════════════════════════════════════════════════════════════
-    // 1. HERO — верхній блок з темним фоном
-    // ════════════════════════════════════════════════════════════════════════
-    const HERO_H = 210;
+    // ════════════════════════════════════════════════════════════════════
+    // 1. HERO
+    // ════════════════════════════════════════════════════════════════════
+    const HERO_H = 215;
 
-    // Фон hero — заливка прямокутника (PDFKit не має лінійного градієнта,
-    // тому робимо два перекриваючих прямокутники для ілюзії глибини)
-    doc.rect(0, 0, PW, HERO_H).fill(C.heroTop);
-    // нижня частина трохи світліша
-    doc.rect(0, HERO_H - 60, PW, 60).fill(C.heroBot);
+    fr(doc, 0, 0,          PW, HERO_H - 50, C.heroTop);
+    fr(doc, 0, HERO_H - 50, PW, 50,         C.heroBot);
 
-    // Декоративні кола (фонові)
-    doc.save()
-      .circle(PW - 60, -20, 130)
-      .fillOpacity(0.07)
-      .fill(C.white)
-      .restore();
+    // Декоративні кола (суцільний колір з низьким lightness — без opacity)
+    doc.save().circle(PW - 50, -30, 140).fill("#162F22").restore();
+    doc.save().circle(PW + 10,  90,  90).fill("#1E4232").restore();
+    doc.save().circle(25,  HERO_H + 5, 75).fill("#223A2C").restore();
 
-    doc.save()
-      .circle(PW + 20, 80, 90)
-      .fillOpacity(0.05)
-      .fill(C.white)
-      .restore();
-
-    doc.save()
-      .circle(30, HERO_H + 10, 80)
-      .fillOpacity(0.06)
-      .fill(C.white)
-      .restore();
-
-    // Логотип / бейдж
-    doc.save()
-      .circle(52, 52, 22)
-      .fill(C.heroAccent)
-      .restore();
-
-    doc.fillColor(C.white).fontSize(20).text("К", 44, 41);
+    // Логотип
+    doc.save().circle(54, 54, 22).fill(C.heroAccent).restore();
+    doc.fillColor(C.white).fontSize(18).text("К", 46, 44);
 
     // Заголовок
-    doc.fillColor(C.white)
-      .fontSize(32)
-      .text("Кето-план харчування", 88, 36, { lineBreak: false });
+    doc.fillColor(C.white).fontSize(28)
+      .text("Кето-план харчування", 90, 38, { lineBreak: false });
+    doc.fillColor(C.heroAccent).fontSize(12)
+      .text(`Персональний розрахунок для ${data.name || "клієнтки"}`, 90, 74);
 
-    // Підзаголовок
-    doc.fillColor(C.heroAccent)
-      .fontSize(13)
-      .text(`Персональний розрахунок для ${data.name || "клієнтки"}`, 88, 75);
+    // Підкреслення-акцент
+    fr(doc, 90, 92, 140, 2, C.greenMid);
 
-    // Акцентна смужка під підзаголовком
-    doc.save()
-      .rect(88, 94, 160, 2)
-      .fill(C.greenMid)
-      .restore();
+    // Картка калорій — непрозорий темніший фон (без fillOpacity)
+    rr(doc, 40, 112, PW - 80, 78, 14, C.heroCard);
 
-    // Головна цифра — target calories у hero
-    const calLabel = "Ваша норма калорій";
-    const calValue = `${result.targetCalories} ккал`;
-    const calSub   = "на день для схуднення";
+    doc.fillColor(C.heroAccent).fontSize(9)
+      .text("ВАША НОРМА КАЛОРІЙ", 66, 126, { characterSpacing: 1.2 });
 
-    // Картка всередині hero
-    doc.save()
-      .roundedRect(40, 118, PW - 80, 72, 14)
-      .fillOpacity(0.15)
-      .fill(C.white)
-      .restore();
+    doc.fillColor(C.white).fontSize(34)
+      .text(`${result.targetCalories} ккал`, 66, 142, { lineBreak: false });
 
-    // Reset opacity
-    doc.fillOpacity(1);
+    doc.fillColor(C.textFaint).fontSize(10)
+      .text("на день для схуднення", 66, 181);
 
-    doc.fillColor(C.heroAccent).fontSize(10).text(calLabel.toUpperCase(), 65, 132, { characterSpacing: 1 });
-    doc.fillColor(C.white).fontSize(36).text(calValue, 65, 146);
-    doc.fillColor(C.textFaint).fontSize(10).text(calSub, 65, 186);
+    // Авокадо
+    doc.fillColor(C.heroAccent).fontSize(42).text("🥑", PW - 120, 134);
 
-    // Піктограма вогню / авокадо праворуч (текстова)
-    doc.fillColor(C.heroAccent).fontSize(48).text("🥑", PW - 130, 130);
+    // ════════════════════════════════════════════════════════════════════
+    // 2. ФОН
+    // ════════════════════════════════════════════════════════════════════
+    fr(doc, 0, HERO_H, PW, PH - HERO_H, C.cream);
 
-    // ════════════════════════════════════════════════════════════════════════
-    // 2. ФОН СТОРІНКИ
-    // ════════════════════════════════════════════════════════════════════════
-    doc.rect(0, HERO_H, PW, PH - HERO_H).fill(C.cream);
+    // ════════════════════════════════════════════════════════════════════
+    // 3. КБЖВ — три картки
+    // ════════════════════════════════════════════════════════════════════
+    const SEC1_Y = HERO_H + 28;
 
-    // ════════════════════════════════════════════════════════════════════════
-    // 3. СЕКЦІЯ КБЖВ — три картки
-    // ════════════════════════════════════════════════════════════════════════
-    const SEC1_Y = HERO_H + 30;
+    doc.fillColor(C.text).fontSize(14)
+      .text("Ваші кето КБЖВ", 40, SEC1_Y);
+    divider(doc, 40, SEC1_Y + 22, PW - 80);
 
-    // Заголовок секції
-    doc.fillColor(C.text).fontSize(16)
-      .text("Ваші кето КБЖВ", 40, SEC1_Y, { characterSpacing: 0.3 });
+    const CARD_Y   = SEC1_Y + 34;
+    const CARD_H   = 108;
+    const CARD_GAP = 13;
+    const CARD_W   = Math.floor((PW - 80 - CARD_GAP * 2) / 3);
 
-    divider(doc, 40, SEC1_Y + 24, PW - 80);
+    const cards = [
+      { label: "БІЛКИ",     value: `${result.protein} г`,  sub: `${result.proteinPercent}% від калорій`, bg: C.orangeLight, accent: C.orange },
+      { label: "ЖИРИ",      value: `${result.fat} г`,      sub: `${result.fatPercent}% від калорій`,    bg: C.greenLight,  accent: C.green  },
+      { label: "ВУГЛЕВОДИ", value: `${result.carbs} г`,    sub: `${result.carbsPercent}% від калорій`,  bg: C.purpleLight, accent: C.purple },
+    ];
 
-    const CARD_Y   = SEC1_Y + 38;
-    const CARD_H   = 110;
-    const CARD_GAP = 14;
-    const CARD_W   = (PW - 80 - CARD_GAP * 2) / 3;  // ~161
+    cards.forEach((card, i) => {
+      const cx = 40 + i * (CARD_W + CARD_GAP);
 
-    // ── Картка: Білки ─────────────────────────────────────────────
-    const c1x = 40;
-    roundedRect(doc, c1x, CARD_Y, CARD_W, CARD_H, 14, C.orangeLight);
+      rr(doc, cx, CARD_Y, CARD_W, CARD_H, 12, card.bg);
 
-    // Акцентна верхня смужка
-    doc.save().roundedRect(c1x, CARD_Y, CARD_W, 5, [14, 14, 0, 0]).fill(C.orange).restore();
+      // Верхня смужка (окремий прямокутник зверху)
+      fr(doc, cx + 12, CARD_Y, CARD_W - 24, 4, card.accent);
 
-    doc.fillColor(C.orange).fontSize(10).text("БІЛКИ", c1x + 18, CARD_Y + 18, { characterSpacing: 1.5 });
-    doc.fillColor(C.text).fontSize(30).text(`${result.protein} г`, c1x + 18, CARD_Y + 35);
-    doc.fillColor(C.orange).fontSize(11)
-      .text(`${result.proteinPercent}% від калорій`, c1x + 18, CARD_Y + 82);
+      doc.fillColor(card.accent).fontSize(9)
+        .text(card.label, cx + 16, CARD_Y + 16, { characterSpacing: 1.4 });
+      doc.fillColor(C.text).fontSize(28)
+        .text(card.value, cx + 16, CARD_Y + 32);
+      doc.fillColor(card.accent).fontSize(10)
+        .text(card.sub, cx + 16, CARD_Y + 80);
+    });
 
-    // ── Картка: Жири ──────────────────────────────────────────────
-    const c2x = 40 + CARD_W + CARD_GAP;
-    roundedRect(doc, c2x, CARD_Y, CARD_W, CARD_H, 14, C.greenLight);
-
-    doc.save().roundedRect(c2x, CARD_Y, CARD_W, 5, [14, 14, 0, 0]).fill(C.green).restore();
-
-    doc.fillColor(C.green).fontSize(10).text("ЖИРИ", c2x + 18, CARD_Y + 18, { characterSpacing: 1.5 });
-    doc.fillColor(C.text).fontSize(30).text(`${result.fat} г`, c2x + 18, CARD_Y + 35);
-    doc.fillColor(C.green).fontSize(11)
-      .text(`${result.fatPercent}% від калорій`, c2x + 18, CARD_Y + 82);
-
-    // ── Картка: Вуглеводи ─────────────────────────────────────────
-    const c3x = 40 + (CARD_W + CARD_GAP) * 2;
-    roundedRect(doc, c3x, CARD_Y, CARD_W, CARD_H, 14, C.purpleLight);
-
-    doc.save().roundedRect(c3x, CARD_Y, CARD_W, 5, [14, 14, 0, 0]).fill(C.purple).restore();
-
-    doc.fillColor(C.purple).fontSize(10).text("ВУГЛЕВОДИ", c3x + 18, CARD_Y + 18, { characterSpacing: 1.5 });
-    doc.fillColor(C.text).fontSize(30).text(`${result.carbs} г`, c3x + 18, CARD_Y + 35);
-    doc.fillColor(C.purple).fontSize(11)
-      .text(`${result.carbsPercent}% від калорій`, c3x + 18, CARD_Y + 82);
-
-    // ════════════════════════════════════════════════════════════════════════
-    // 4. ПРОГРЕС-БАР (макрос)
-    // ════════════════════════════════════════════════════════════════════════
-    const BAR_Y = CARD_Y + CARD_H + 28;
+    // ════════════════════════════════════════════════════════════════════
+    // 4. ПРОГРЕС-БАР
+    // ════════════════════════════════════════════════════════════════════
+    const BAR_Y = CARD_Y + CARD_H + 24;
     const BAR_W = PW - 80;
-    const BAR_H = 14;
+    const BAR_H = 12;
 
     // Підписи
-    doc.fillColor(C.orange).fontSize(9).text("Білки 25%", 40, BAR_Y - 16);
-    doc.fillColor(C.green).fontSize(9).text("Жири 70%", 40 + BAR_W * 0.25 + 4, BAR_Y - 16);
-    doc.fillColor(C.purple).fontSize(9).text("Вуглеводи 5%", 40 + BAR_W * 0.95 - 58, BAR_Y - 16);
+    doc.fillColor(C.orange).fontSize(8).text("Білки 25%", 40, BAR_Y - 14);
+    doc.fillColor(C.green).fontSize(8)
+      .text("Жири 70%", 40 + Math.round(BAR_W * 0.25) + 4, BAR_Y - 14);
+    doc.fillColor(C.purple).fontSize(8)
+      .text("Вуглеводи 5%", 40 + Math.round(BAR_W * 0.95) - 60, BAR_Y - 14);
 
     // Трек
-    doc.save().roundedRect(40, BAR_Y, BAR_W, BAR_H, 7).fill("#DDE9D8").restore();
-    // Білки
-    doc.save().roundedRect(40, BAR_Y, BAR_W * 0.25, BAR_H, 7).fill(C.orange).restore();
-    // Жири
-    doc.save().rect(40 + BAR_W * 0.25, BAR_Y, BAR_W * 0.70, BAR_H).fill(C.green).restore();
-    // Вуглеводи
-    doc.save().roundedRect(40 + BAR_W * 0.95, BAR_Y, BAR_W * 0.05, BAR_H, [0, 7, 7, 0]).fill(C.purple).restore();
+    rr(doc, 40, BAR_Y, BAR_W, BAR_H, 6, "#D5E8CC");
 
-    // ════════════════════════════════════════════════════════════════════════
-    // 5. ДЕТАЛІ РОЗРАХУНКУ — два стовпці
-    // ════════════════════════════════════════════════════════════════════════
-    const SEC2_Y = BAR_Y + BAR_H + 36;
+    // Сегменти (цілі числа — без float артефактів)
+    const seg1w = Math.round(BAR_W * 0.25);
+    const seg2w = Math.round(BAR_W * 0.70);
+    const seg3w = BAR_W - seg1w - seg2w;
 
-    doc.fillColor(C.text).fontSize(16)
-      .text("Деталі розрахунку", 40, SEC2_Y, { characterSpacing: 0.3 });
+    rr(doc,  40,               BAR_Y, seg1w, BAR_H, 6, C.orange);
+    fr(doc,  40 + seg1w,       BAR_Y, seg2w, BAR_H,    C.green);
+    rr(doc,  40 + seg1w + seg2w, BAR_Y, seg3w, BAR_H, 6, C.purple);
 
-    divider(doc, 40, SEC2_Y + 24, PW - 80);
+    // ════════════════════════════════════════════════════════════════════
+    // 5. ДЕТАЛІ — два стовпці
+    // ════════════════════════════════════════════════════════════════════
+    const SEC2_Y = BAR_Y + BAR_H + 32;
 
-    const DET_Y  = SEC2_Y + 38;
-    const DET_H  = 150;
-    const DET_W  = (PW - 80 - 14) / 2;
+    doc.fillColor(C.text).fontSize(14)
+      .text("Деталі розрахунку", 40, SEC2_Y);
+    divider(doc, 40, SEC2_Y + 22, PW - 80);
 
-    // Картка — особисті дані
-    roundedRect(doc, 40, DET_Y, DET_W, DET_H, 12, C.white);
-    doc.save().rect(40, DET_Y, 4, DET_H).roundedRect(40, DET_Y, 4, DET_H, [2, 0, 0, 2]).fill(C.greenMid).restore();
+    const DET_Y = SEC2_Y + 34;
+    const DET_H = 148;
+    const DET_W = Math.floor((PW - 80 - 13) / 2);
+    const d2x   = 40 + DET_W + 13;
 
-    doc.fillColor(C.textMid).fontSize(10).text("ОСОБИСТІ ДАНІ", 58, DET_Y + 14, { characterSpacing: 1 });
+    // ── Картка ліва (особисті дані) ───────────────────────────────────
+    rr(doc, 40, DET_Y, DET_W, DET_H, 10, C.white);
+    fr(doc, 40, DET_Y, 4, DET_H, C.greenMid);
+
+    doc.fillColor(C.textMid).fontSize(9)
+      .text("ОСОБИСТІ ДАНІ", 58, DET_Y + 14, { characterSpacing: 1 });
 
     const rows1 = [
-      ["Ім'я",   data.name || "-"],
-      ["Вік",    `${data.age} років`],
-      ["Вага",   `${data.weight} кг`],
-      ["Зріст",  `${data.height} см`],
+      ["Ім'я",  data.name     || "-"],
+      ["Вік",   `${data.age} років`],
+      ["Вага",  `${data.weight} кг`],
+      ["Зріст", `${data.height} см`],
     ];
 
     rows1.forEach(([k, v], i) => {
       const ry = DET_Y + 34 + i * 26;
-      doc.fillColor(C.textLight).fontSize(9).text(k, 58, ry);
-      doc.fillColor(C.text).fontSize(11).text(v, 58 + 70, ry);
-      if (i < rows1.length - 1) divider(doc, 58, ry + 18, DET_W - 36, "#F0F5EE");
+      doc.fillColor(C.textLight).fontSize(8).text(k, 58, ry);
+      doc.fillColor(C.text).fontSize(11).text(v, 130, ry);
+      if (i < rows1.length - 1) divider(doc, 58, ry + 18, DET_W - 36, "#EDF5EA");
     });
 
-    // Картка — метаболічні показники
-    const d2x = 40 + DET_W + 14;
-    roundedRect(doc, d2x, DET_Y, DET_W, DET_H, 12, C.white);
-    doc.save().rect(d2x, DET_Y, 4, DET_H).roundedRect(d2x, DET_Y, 4, DET_H, [2, 0, 0, 2]).fill(C.orange).restore();
+    // ── Картка права (метаболізм) ──────────────────────────────────────
+    rr(doc, d2x, DET_Y, DET_W, DET_H, 10, C.white);
+    fr(doc, d2x, DET_Y, 4, DET_H, C.orange);
 
-    doc.fillColor(C.textMid).fontSize(10).text("МЕТАБОЛІЗМ", d2x + 18, DET_Y + 14, { characterSpacing: 1 });
+    doc.fillColor(C.textMid).fontSize(9)
+      .text("МЕТАБОЛІЗМ", d2x + 18, DET_Y + 14, { characterSpacing: 1 });
 
     const rows2 = [
-      ["BMR (базовий обмін)",       `${result.bmr} ккал`],
-      ["TDEE (з активністю)",        `${result.tdee} ккал`],
-      ["Ціль (−10%)",               `${result.targetCalories} ккал`],
+      ["BMR (базовий обмін)", `${result.bmr} ккал`],
+      ["TDEE (з активністю)", `${result.tdee} ккал`],
+      ["Ціль (−10%)",         `${result.targetCalories} ккал`],
     ];
 
     rows2.forEach(([k, v], i) => {
       const ry = DET_Y + 34 + i * 34;
-      doc.fillColor(C.textLight).fontSize(9).text(k, d2x + 18, ry);
-      doc.fillColor(C.text).fontSize(13).text(v, d2x + 18, ry + 12);
-      if (i < rows2.length - 1) divider(doc, d2x + 18, ry + 28, DET_W - 36, "#F0F5EE");
+      doc.fillColor(C.textLight).fontSize(8).text(k,  d2x + 18, ry);
+      doc.fillColor(C.text).fontSize(12).text(v, d2x + 18, ry + 13);
+      if (i < rows2.length - 1) divider(doc, d2x + 18, ry + 28, DET_W - 36, "#EDF5EA");
     });
 
-    // ════════════════════════════════════════════════════════════════════════
-    // 6. DISCLAIMER / ПІДКАЗКА
-    // ════════════════════════════════════════════════════════════════════════
-    const NOTE_Y = DET_Y + DET_H + 28;
+    // ════════════════════════════════════════════════════════════════════
+    // 6. ПРИМІТКА
+    // ════════════════════════════════════════════════════════════════════
+    const NOTE_Y = DET_Y + DET_H + 24;
 
-    roundedRect(doc, 40, NOTE_Y, PW - 80, 68, 12, C.greenLight);
+    rr(doc, 40, NOTE_Y, PW - 80, 66, 10, C.greenLight);
+    fr(doc, 40, NOTE_Y, 4, 66, C.greenMid);
 
-    // Іконка-лампочка
-    doc.fillColor(C.greenMid).fontSize(18).text("💡", 58, NOTE_Y + 22);
-
+    doc.fillColor(C.greenMid).fontSize(16).text("💡", 56, NOTE_Y + 21);
     doc.fillColor(C.textMid).fontSize(10).text(
-      "Цей розрахунок є орієнтовною стартовою точкою. Спостерігайте за самопочуттям,\n" +
+      "Цей розрахунок є орієнтовною стартовою точкою. Спостерігайте за самопочуттям, " +
       "енергією, голодом і прогресом протягом 2–3 тижнів.",
-      84, NOTE_Y + 14,
-      { width: PW - 144, lineGap: 3 }
+      82, NOTE_Y + 13,
+      { width: PW - 140, lineGap: 3 }
     );
 
-    // ════════════════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════════════
     // 7. FOOTER
-    // ════════════════════════════════════════════════════════════════════════
-    const FT_Y = PH - 46;
+    // ════════════════════════════════════════════════════════════════════
+    const FT_Y = PH - 44;
 
-    doc.rect(0, FT_Y - 8, PW, 54).fill(C.heroTop);
+    fr(doc, 0, FT_Y - 6, PW, 50, C.heroTop);
 
-    doc.fillColor(C.heroAccent).fontSize(9)
-      .text("Розрахунок не замінює консультацію лікаря або дієтолога.", 40, FT_Y + 4, {
-        width: PW - 80,
-        align: "center"
-      });
-
-    doc.fillColor(C.textFaint).fontSize(8)
-      .text(`Сформовано автоматично • ${new Date().toLocaleDateString("uk-UA")}`, 40, FT_Y + 18, {
-        width: PW - 80,
-        align: "center"
-      });
+    doc.fillColor(C.heroAccent).fontSize(9).text(
+      "Розрахунок не замінює консультацію лікаря або дієтолога.",
+      40, FT_Y + 5, { width: PW - 80, align: "center" }
+    );
+    doc.fillColor(C.textFaint).fontSize(8).text(
+      `Сформовано автоматично · ${new Date().toLocaleDateString("uk-UA")}`,
+      40, FT_Y + 19, { width: PW - 80, align: "center" }
+    );
 
     doc.end();
   });
 }
 
-// ─── Telegram Sender ─────────────────────────────────────────────────────────
+// ─── Telegram ────────────────────────────────────────────────────────────────
 
 async function sendPdfToTelegram(chatId, pdfBuffer, fileName) {
   const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN_KETO}/sendDocument`;
-
   const formData = new FormData();
   formData.append("chat_id", String(chatId));
   formData.append("caption", "Ваш кето-план готовий 🥑");
+  formData.append("document", new Blob([pdfBuffer], { type: "application/pdf" }), fileName);
 
-  const blob = new Blob([pdfBuffer], { type: "application/pdf" });
-  formData.append("document", blob, fileName);
-
-  const response = await fetch(url, {
-    method: "POST",
-    body: formData
-  });
-
+  const response = await fetch(url, { method: "POST", body: formData });
   const json = await response.json();
-  if (!response.ok) {
-    throw new Error(`Telegram error: ${JSON.stringify(json)}`);
-  }
-
+  if (!response.ok) throw new Error(`Telegram error: ${JSON.stringify(json)}`);
   return json;
 }
