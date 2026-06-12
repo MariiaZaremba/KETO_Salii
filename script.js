@@ -18,19 +18,24 @@ form.addEventListener("submit", async function (e) {
     chat_id: chatIdFromUrl
   };
 
-  const formData = new FormData();
-  formData.append("payload", JSON.stringify(data));
-
   const resultDiv = document.getElementById("result");
   resultDiv.classList.remove("hidden");
   resultDiv.innerHTML = "<p>⏳ Рахуємо...</p>";
 
   try {
-    await fetch(API_URL, {
+    const response = await fetch(API_URL, {
       method: "POST",
-      mode: "no-cors",
-      body: formData
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
     });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Помилка при створенні PDF");
+    }
 
     resultDiv.innerHTML = `
       <h2>Готово 🎉</h2>
