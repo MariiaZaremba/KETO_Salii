@@ -3,7 +3,6 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzqff59sQiDqr_SotdVfvb3
 const params = new URLSearchParams(window.location.search);
 const chatIdFromUrl = params.get("chat_id");
 
-
 const form = document.getElementById("ketoForm");
 
 form.addEventListener("submit", async function (e) {
@@ -26,29 +25,17 @@ form.addEventListener("submit", async function (e) {
   resultDiv.innerHTML = "<p>⏳ Рахуємо...</p>";
 
   try {
-    const response = await fetch(API_URL, {
+    await fetch(API_URL, {
       method: "POST",
+      mode: "no-cors",
       body: JSON.stringify(data)
     });
 
-    const responseData = await response.json();
-
     resultDiv.innerHTML = `
-      <h2>${data.name}, ваш розрахунок готовий 🎉</h2>
-      <p>PDF має бути надіслано в чат ✅</p>
-
-      <p><strong>Калорії:</strong> ${responseData.result.targetCalories} ккал</p>
-      <p><strong>Білки:</strong> ${responseData.result.protein} г</p>
-      <p><strong>Жири:</strong> ${responseData.result.fat} г</p>
-      <p><strong>Вуглеводи:</strong> ${responseData.result.carbs} г</p>
-
-      <br>
-
-      <a href="${responseData.pdfUrl}" target="_blank">
-        Відкрити PDF
-      </a>
+      <h2>Готово 🎉</h2>
+      <p>Якщо все спрацювало, PDF має прийти в чат.</p>
     `;
- } catch (error) {
+  } catch (error) {
     console.error("PDF error:", error);
 
     resultDiv.innerHTML = `
