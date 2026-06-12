@@ -1,6 +1,5 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzqff59sQiDqr_SotdVfvb3mHCutXOThv-wJBQpskIRAt46785xJZ2tMMOHLB9p_4FfdA/exec";
 
-
 const params = new URLSearchParams(window.location.search);
 const chatIdFromUrl = params.get("chat_id");
 
@@ -19,7 +18,8 @@ form.addEventListener("submit", async function (e) {
     chat_id: chatIdFromUrl
   };
 
-  console.log(data);
+  const formData = new FormData();
+  formData.append("payload", JSON.stringify(data));
 
   const resultDiv = document.getElementById("result");
   resultDiv.classList.remove("hidden");
@@ -29,12 +29,12 @@ form.addEventListener("submit", async function (e) {
     await fetch(API_URL, {
       method: "POST",
       mode: "no-cors",
-      body: JSON.stringify(data)
+      body: formData
     });
 
     resultDiv.innerHTML = `
       <h2>Готово 🎉</h2>
-      <p>Якщо все спрацювало, PDF має прийти в чат.</p>
+      <p>PDF має прийти в чат протягом кількох секунд.</p>
     `;
   } catch (error) {
     console.error("PDF error:", error);
