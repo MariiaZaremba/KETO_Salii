@@ -8,6 +8,8 @@
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
   />
 
+  <meta name="theme-color" content="#f6f3e9" />
+
   <title>КЕТО-магазин | KETOSALII</title>
 
   <link rel="stylesheet" href="shop.css" />
@@ -16,38 +18,67 @@
 </head>
 
 <body>
-  <main class="shop-page">
+  <main class="app">
 
-    <header class="shop-header">
-      <span class="brand">KETOSALII</span>
+    <!-- Верхня частина -->
+    <header class="hero">
+      <div class="hero-top">
+        <span class="brand">KETOSALII</span>
+        <span class="hero-label">PDF-магазин</span>
+      </div>
 
-      <h1>КЕТО-магазин</h1>
+      <h1>Матеріали для легкого старту на КЕТО</h1>
 
       <p>
-        Практичні матеріали для комфортного старту,
-        планування харчування та відстеження результатів.
+        Готові меню, чек-листи, гайди та трекери, які допоможуть
+        організувати харчування і впевнено рухатися до результату.
       </p>
     </header>
 
+    <!-- Пошук -->
+    <section class="search-section">
+      <label class="search-box">
+        <span class="search-icon">⌕</span>
+
+        <input
+          id="productSearch"
+          type="search"
+          placeholder="Знайти матеріал"
+          autocomplete="off"
+        />
+      </label>
+    </section>
+
+    <!-- Категорії -->
     <section class="filters" aria-label="Категорії товарів">
-      <button class="filter-button active" data-filter="all">
+      <button class="filter-button active" data-filter="all" type="button">
         Усі
       </button>
 
-      <button class="filter-button" data-filter="guide">
+      <button class="filter-button" data-filter="guide" type="button">
         Гайди
       </button>
 
-      <button class="filter-button" data-filter="menu">
+      <button class="filter-button" data-filter="menu" type="button">
         Меню
       </button>
 
-      <button class="filter-button" data-filter="tracker">
+      <button class="filter-button" data-filter="tracker" type="button">
         Трекери
       </button>
     </section>
 
-    <section class="products">
+    <section class="section-heading">
+      <div>
+        <span class="eyebrow">Обирайте свій матеріал</span>
+        <h2>Каталог</h2>
+      </div>
+
+      <span class="product-count" id="productCount">7 товарів</span>
+    </section>
+
+    <!-- Товари -->
+    <section class="products" id="productsGrid">
 
       <!-- Інтервальне голодування -->
       <article
@@ -55,31 +86,31 @@
         data-category="guide"
         data-title="Інтервальне голодування"
         data-price="200 грн"
+        data-image="images/guide-ig.png"
         data-description="Практичний гайд про інтервальне голодування. Ви дізнаєтесь, як обрати комфортне вікно харчування, як поєднати інтервальне голодування з КЕТО та як почати без зайвого стресу."
         data-buy-link="#"
       >
-        <div class="image-wrapper">
-          <img
-            src="images/guide-ig.png"
-            alt="Гайд Інтервальне голодування"
-          />
+        <button class="product-open" type="button" aria-label="Відкрити товар">
+          <div class="product-image">
+            <img
+              src="images/guide-ig.png"
+              alt="Гайд Інтервальне голодування"
+            />
 
-          <span class="product-badge">Гайд</span>
-        </div>
-
-        <div class="product-content">
-          <h2>Інтервальне голодування</h2>
-
-          <p>Простий і зрозумілий гайд для легкого старту.</p>
-
-          <div class="product-footer">
-            <strong>200 грн</strong>
-
-            <button class="details-button" type="button">
-              Детальніше
-            </button>
+            <span class="product-badge">Гайд</span>
           </div>
-        </div>
+
+          <div class="product-info">
+            <h3>Інтервальне голодування</h3>
+
+            <p>Простий гайд для комфортного початку.</p>
+
+            <div class="product-bottom">
+              <strong>200 грн</strong>
+              <span class="details-link">Детальніше →</span>
+            </div>
+          </div>
+        </button>
       </article>
 
       <!-- Як почати КЕТО -->
@@ -88,31 +119,31 @@
         data-category="guide"
         data-title="Чек-лист «Як почати КЕТО»"
         data-price="200 грн"
+        data-image="images/how-to-start.png"
         data-description="Покроковий чек-лист для тих, хто лише починає КЕТО. У матеріалі зібрані основні кроки, підготовка продуктів, рекомендації для першого тижня та типові помилки новачків."
         data-buy-link="#"
       >
-        <div class="image-wrapper">
-          <img
-            src="images/how-to-start.png"
-            alt="Чек-лист Як почати КЕТО"
-          />
+        <button class="product-open" type="button" aria-label="Відкрити товар">
+          <div class="product-image">
+            <img
+              src="images/how-to-start.png"
+              alt="Чек-лист Як почати КЕТО"
+            />
 
-          <span class="product-badge">Чек-лист</span>
-        </div>
-
-        <div class="product-content">
-          <h2>Як почати КЕТО</h2>
-
-          <p>Перші кроки на КЕТО без зайвого стресу.</p>
-
-          <div class="product-footer">
-            <strong>200 грн</strong>
-
-            <button class="details-button" type="button">
-              Детальніше
-            </button>
+            <span class="product-badge popular">Популярне</span>
           </div>
-        </div>
+
+          <div class="product-info">
+            <h3>Як почати КЕТО</h3>
+
+            <p>Покроковий план для першого тижня.</p>
+
+            <div class="product-bottom">
+              <strong>200 грн</strong>
+              <span class="details-link">Детальніше →</span>
+            </div>
+          </div>
+        </button>
       </article>
 
       <!-- Меню 1500 -->
@@ -121,31 +152,31 @@
         data-category="menu"
         data-title="КЕТО меню на 1500 ккал"
         data-price="250 грн"
+        data-image="images/keto-menu-1500.png"
         data-description="Готовий варіант КЕТО-меню з розрахованою калорійністю 1500 ккал. Матеріал допоможе організувати харчування та заощадити час на щоденному плануванні раціону."
         data-buy-link="#"
       >
-        <div class="image-wrapper">
-          <img
-            src="images/keto-menu-1500.png"
-            alt="КЕТО меню на 1500 ккал"
-          />
+        <button class="product-open" type="button" aria-label="Відкрити товар">
+          <div class="product-image">
+            <img
+              src="images/keto-menu-1500.png"
+              alt="КЕТО меню на 1500 ккал"
+            />
 
-          <span class="product-badge">Меню</span>
-        </div>
-
-        <div class="product-content">
-          <h2>КЕТО меню на 1500 ккал</h2>
-
-          <p>Готовий варіант раціону з розрахованою калорійністю.</p>
-
-          <div class="product-footer">
-            <strong>250 грн</strong>
-
-            <button class="details-button" type="button">
-              Детальніше
-            </button>
+            <span class="product-badge">Меню</span>
           </div>
-        </div>
+
+          <div class="product-info">
+            <h3>КЕТО меню на 1500 ккал</h3>
+
+            <p>Готовий раціон із розрахованою калорійністю.</p>
+
+            <div class="product-bottom">
+              <strong>250 грн</strong>
+              <span class="details-link">Детальніше →</span>
+            </div>
+          </div>
+        </button>
       </article>
 
       <!-- Меню 1600 -->
@@ -154,31 +185,31 @@
         data-category="menu"
         data-title="КЕТО меню на 1600 ккал"
         data-price="250 грн"
+        data-image="images/keto-menu-1600.png"
         data-description="Готовий варіант КЕТО-меню на 1600 ккал. Підійде для зручного планування харчування та допоможе скласти зрозумілий щоденний раціон."
         data-buy-link="#"
       >
-        <div class="image-wrapper">
-          <img
-            src="images/keto-menu-1600.png"
-            alt="КЕТО меню на 1600 ккал"
-          />
+        <button class="product-open" type="button" aria-label="Відкрити товар">
+          <div class="product-image">
+            <img
+              src="images/keto-menu-1600.png"
+              alt="КЕТО меню на 1600 ккал"
+            />
 
-          <span class="product-badge">Меню</span>
-        </div>
-
-        <div class="product-content">
-          <h2>КЕТО меню на 1600 ккал</h2>
-
-          <p>Зручний готовий раціон для щоденного харчування.</p>
-
-          <div class="product-footer">
-            <strong>250 грн</strong>
-
-            <button class="details-button" type="button">
-              Детальніше
-            </button>
+            <span class="product-badge">Меню</span>
           </div>
-        </div>
+
+          <div class="product-info">
+            <h3>КЕТО меню на 1600 ккал</h3>
+
+            <p>Зручний готовий раціон на кожен день.</p>
+
+            <div class="product-bottom">
+              <strong>250 грн</strong>
+              <span class="details-link">Детальніше →</span>
+            </div>
+          </div>
+        </button>
       </article>
 
       <!-- Меню 1700 -->
@@ -187,64 +218,64 @@
         data-category="menu"
         data-title="КЕТО меню на 1700 ккал"
         data-price="250 грн"
+        data-image="images/keto-menu-1700.png"
         data-description="Готовий варіант КЕТО-меню на 1700 ккал для тих, кому потрібен більш поживний раціон. Допомагає планувати харчування без щоденних підрахунків."
         data-buy-link="#"
       >
-        <div class="image-wrapper">
-          <img
-            src="images/keto-menu-1700.png"
-            alt="КЕТО меню на 1700 ккал"
-          />
+        <button class="product-open" type="button" aria-label="Відкрити товар">
+          <div class="product-image">
+            <img
+              src="images/keto-menu-1700.png"
+              alt="КЕТО меню на 1700 ккал"
+            />
 
-          <span class="product-badge">Меню</span>
-        </div>
-
-        <div class="product-content">
-          <h2>КЕТО меню на 1700 ккал</h2>
-
-          <p>Більш поживний варіант готового КЕТО-раціону.</p>
-
-          <div class="product-footer">
-            <strong>250 грн</strong>
-
-            <button class="details-button" type="button">
-              Детальніше
-            </button>
+            <span class="product-badge">Меню</span>
           </div>
-        </div>
+
+          <div class="product-info">
+            <h3>КЕТО меню на 1700 ккал</h3>
+
+            <p>Поживний готовий варіант КЕТО-раціону.</p>
+
+            <div class="product-bottom">
+              <strong>250 грн</strong>
+              <span class="details-link">Детальніше →</span>
+            </div>
+          </div>
+        </button>
       </article>
 
-      <!-- Продукти -->
+      <!-- Список продуктів -->
       <article
         class="product-card"
         data-category="guide"
         data-title="Список продуктів для КЕТО"
         data-price="150 грн"
+        data-image="images/products-list.png"
         data-description="Зручний список продуктів для КЕТО-харчування. Матеріал можна використовувати під час планування меню та покупок у магазині."
         data-buy-link="#"
       >
-        <div class="image-wrapper">
-          <img
-            src="images/products-list.png"
-            alt="Список продуктів для КЕТО"
-          />
+        <button class="product-open" type="button" aria-label="Відкрити товар">
+          <div class="product-image">
+            <img
+              src="images/products-list.png"
+              alt="Список продуктів для КЕТО"
+            />
 
-          <span class="product-badge">Шпаргалка</span>
-        </div>
-
-        <div class="product-content">
-          <h2>Продукти для КЕТО</h2>
-
-          <p>Практична шпаргалка для планування покупок.</p>
-
-          <div class="product-footer">
-            <strong>150 грн</strong>
-
-            <button class="details-button" type="button">
-              Детальніше
-            </button>
+            <span class="product-badge">Шпаргалка</span>
           </div>
-        </div>
+
+          <div class="product-info">
+            <h3>Продукти для КЕТО</h3>
+
+            <p>Зручна шпаргалка для покупок.</p>
+
+            <div class="product-bottom">
+              <strong>150 грн</strong>
+              <span class="details-link">Детальніше →</span>
+            </div>
+          </div>
+        </button>
       </article>
 
       <!-- Трекер -->
@@ -253,72 +284,93 @@
         data-category="tracker"
         data-title="Трекер схуднення"
         data-price="150 грн"
+        data-image="images/tracker.png"
         data-description="PDF-трекер для запису ваги, обʼємів тіла, самопочуття та щотижневого прогресу. Допомагає бачити зміни та підтримувати мотивацію."
         data-buy-link="#"
       >
-        <div class="image-wrapper">
-          <img
-            src="images/tracker.png"
-            alt="Трекер схуднення"
-          />
+        <button class="product-open" type="button" aria-label="Відкрити товар">
+          <div class="product-image">
+            <img
+              src="images/tracker.png"
+              alt="Трекер схуднення"
+            />
 
-          <span class="product-badge">Трекер</span>
-        </div>
-
-        <div class="product-content">
-          <h2>Трекер схуднення</h2>
-
-          <p>Відстежуйте свій прогрес в одному місці.</p>
-
-          <div class="product-footer">
-            <strong>150 грн</strong>
-
-            <button class="details-button" type="button">
-              Детальніше
-            </button>
+            <span class="product-badge">Трекер</span>
           </div>
-        </div>
+
+          <div class="product-info">
+            <h3>Трекер схуднення</h3>
+
+            <p>Відстежуйте зміни та свій прогрес.</p>
+
+            <div class="product-bottom">
+              <strong>150 грн</strong>
+              <span class="details-link">Детальніше →</span>
+            </div>
+          </div>
+        </button>
       </article>
 
     </section>
+
+    <div class="empty-state hidden" id="emptyState">
+      <h3>Нічого не знайдено</h3>
+      <p>Спробуйте інший запит або категорію.</p>
+    </div>
+
+    <footer class="shop-footer">
+      <p>Після успішної оплати матеріал автоматично надійде в Telegram-чат.</p>
+    </footer>
+
   </main>
 
-  <!-- Модальне вікно товару -->
+  <!-- Нижнє модальне вікно -->
   <div class="product-modal hidden" id="productModal">
+    <div class="modal-overlay" id="modalOverlay"></div>
 
-    <div class="modal-overlay"></div>
-
-    <div class="modal-sheet">
-
+    <section class="modal-sheet" role="dialog" aria-modal="true">
       <div class="modal-handle"></div>
 
       <button
         class="close-modal"
+        id="closeModal"
         type="button"
         aria-label="Закрити"
       >
         ×
       </button>
 
-      <h2 id="modalTitle"></h2>
+      <div class="modal-image">
+        <img id="modalImage" src="" alt="" />
+      </div>
 
-      <p id="modalDescription"></p>
+      <div class="modal-content">
+        <span class="modal-label">Цифровий PDF-матеріал</span>
 
-      <div class="modal-price" id="modalPrice"></div>
+        <h2 id="modalTitle"></h2>
 
-      <a
-        href="#"
-        class="buy-button"
-        id="modalBuyButton"
-      >
-        Купити
-      </a>
+        <p id="modalDescription"></p>
 
-    </div>
+        <div class="modal-benefit">
+          <span>✓</span>
+          <p>Після оплати PDF автоматично надійде у ваш Telegram-чат.</p>
+        </div>
+
+        <div class="modal-bottom">
+          <strong id="modalPrice"></strong>
+
+          <a
+            href="#"
+            class="buy-button"
+            id="modalBuyButton"
+          >
+            Купити
+          </a>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script src="shop.js"></script>
 </body>
 </html>
-```
-
