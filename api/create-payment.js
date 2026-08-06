@@ -117,7 +117,7 @@ export default async function handler(req, res) {
 
     const telegramUser = validateTelegramInitData(
       initData,
-      process.env.TELEGRAM_BOT_TOKEN
+      process.env.TELEGRAM_BOT_TOKEN_KETO
     );
 
     if (!telegramUser?.id) {
@@ -137,7 +137,7 @@ export default async function handler(req, res) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Token": process.env.MONO_TOKEN
+          "X-Token": process.env.MONO_TOKEN_KETO
         },
         body: JSON.stringify({
           amount: product.amount,
@@ -150,10 +150,10 @@ export default async function handler(req, res) {
           },
 
           redirectUrl:
-            `${process.env.APP_URL}/shop.html?payment=return`,
+            `${process.env.APP_URL_KETO}/shop.html?payment=return`,
 
           webHookUrl:
-            `${process.env.APP_URL}/api/mono-webhook`,
+            `${process.env.APP_URL_KETO}/api/mono-webhook`,
 
           validity: 3600,
           paymentType: "debit"
