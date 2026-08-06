@@ -8,9 +8,8 @@ if (telegram) {
   telegram.setBackgroundColor("#f7f4ea");
 }
 
-const productCards = [...document.querySelectorAll(".product-card")];
+const productsGrid = document.getElementById("productsGrid");
 const filterButtons = [...document.querySelectorAll(".filter-button")];
-
 const searchInput = document.getElementById("productSearch");
 const productCount = document.getElementById("productCount");
 const emptyState = document.getElementById("emptyState");
@@ -26,58 +25,121 @@ const modalPrice = document.getElementById("modalPrice");
 const modalBuyButton = document.getElementById("modalBuyButton");
 
 let activeFilter = "all";
-let activeProductLink = "#";
+let activeProduct = null;
+
+function formatPrice(price) {
+  return `${price} грн`;
+}
 
 function normalizeText(text) {
-  return text
+  return String(text || "")
     .toLowerCase()
     .trim()
     .replaceAll("ё", "е");
 }
 
 function getProductWord(count) {
-  if (count === 1) {
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
+
+  if (lastDigit === 1 && lastTwoDigits !== 11) {
     return "товар";
   }
 
-  if (count >= 2 && count <= 4) {
+  if (
+    lastDigit >= 2 &&
+    lastDigit <= 4 &&
+    (lastTwoDigits < 12 || lastTwoDigits > 14)
+  ) {
     return "товари";
   }
 
   return "товарів";
 }
 
-function updateProducts() {
+function createProductCard(product) {
+  const card = document.createElement("article");
+
+  card.className = "product-card";
+  card.dataset.productId = product.id;
+  card.dataset.category = product.category;
+
+  card.innerHTML = `
+    <button
+      class="product-open"
+      type="button"
+      aria-label="Відкрити ${product.title}"
+    >
+      <div class="product-image">
+        <img
+          src="${product.image}"
+          alt="${product.imageAlt}"
+        />
+
+        <span class="product-badge ${product.badgeClass}">
+          ${product.badge}
+        </span>
+      </div>
+
+      <div class="product-info">
+        <h3>${product.cardTitle}</h3>
+
+        <p>${product.shortDescription}</p>
+
+        <div class="product-bottom">
+          <strong>${formatPrice(product.price)}</strong>
+          <span class="details-link">Детальніше →</span>
+        </div>
+      </div>
+    </button>
+  `;
+
+  card
+    .querySelector(".product-open")
+    .addEventListener("click", () => {
+      openProductModal(product);
+    });
+
+  return card;
+}
+
+function renderProducts() {
   const searchValue = normalizeText(searchInput.value);
 
-  let visibleCount = 0;
-
-  productCards.forEach((card) => {
-    const title = normalizeText(card.dataset.title || "");
-    const description = normalizeText(card.dataset.description || "");
-    const category = card.dataset.category;
-
+  const visibleProducts = PRODUCTS.filter((product) => {
     const matchesFilter =
-      activeFilter === "all" || category === activeFilter;
+      activeFilter === "all" ||
+      product.category === activeFilter;
+
+    const searchableText = normalizeText(
+      [
+        product.title,
+        product.cardTitle,
+        product.shortDescription,
+        product.description
+      ].join(" ")
+    );
 
     const matchesSearch =
       !searchValue ||
-      title.includes(searchValue) ||
-      description.includes(searchValue);
+      searchableText.includes(searchValue);
 
-    const shouldShow = matchesFilter && matchesSearch;
+    return matchesFilter && matchesSearch;
+  });
 
-    card.classList.toggle("hidden", !shouldShow);
+  productsGrid.innerHTML = "";
 
-    if (shouldShow) {
-      visibleCount += 1;
-    }
+  visibleProducts.forEach((product) => {
+    productsGrid.appendChild(createProductCard(product));
   });
 
   productCount.textContent =
-    `${visibleCount} ${getProductWord(visibleCount)}`;
+    `${visibleProducts.length} ${getProductWord(visibleProducts.length)}`;
 
-  emptyState.classList.toggle("hidden", visibleCount !== 0);
+  emptyState.classList.toggle(
+    "hidden",
+    visibleProducts.length !== 0
+  );
 }
 
 function setActiveFilter(selectedButton) {
@@ -90,24 +152,18 @@ function setActiveFilter(selectedButton) {
 
   telegram?.HapticFeedback?.selectionChanged();
 
-  updateProducts();
+  renderProducts();
 }
 
-function openProductModal(card) {
-  const title = card.dataset.title || "";
-  const description = card.dataset.description || "";
-  const price = card.dataset.price || "";
-  const image = card.dataset.image || "";
-  const buyLink = card.dataset.buyLink || "#";
+function openProductModal(product) {
+  activeProduct = product;
 
-  modalTitle.textContent = title;
-  modalDescription.textContent = description;
-  modalPrice.textContent = price;
+  modalTitle.textContent = product.title;
+  modalDescription.textContent = product.description;
+  modalPrice.textContent = formatPrice(product.price);
 
-  modalImage.src = image;
-  modalImage.alt = title;
-
-  activeProductLink = buyLink;
+  modalImage.src = product.image;
+  modalImage.alt = product.imageAlt;
 
   modal.classList.remove("hidden");
   document.body.classList.add("modal-open");
@@ -119,37 +175,21 @@ function closeProductModal() {
   modal.classList.add("hidden");
   document.body.classList.remove("modal-open");
 
-  activeProductLink = "#";
+  activeProduct = null;
 }
 
-function openPurchaseFlow(event) {
+async function startPurchase(event) {
   event.preventDefault();
 
-  if (!activeProductLink || activeProductLink === "#") {
-    if (telegram?.showAlert) {
-      telegram.showAlert(
-        "Оплата для цього товару ще налаштовується."
-      );
-    } else {
-      alert("Оплата для цього товару ще налаштовується.");
-    }
-
+  if (!activeProduct) {
     return;
   }
 
   telegram?.HapticFeedback?.impactOccurred("medium");
 
-  if (telegram?.openTelegramLink && activeProductLink.includes("t.me")) {
-    telegram.openTelegramLink(activeProductLink);
-    return;
-  }
-
-  if (telegram?.openLink) {
-    telegram.openLink(activeProductLink);
-    return;
-  }
-
-  window.location.href = activeProductLink;
+  alert(
+    `Наступним кроком підключимо оплату для товару:\n${activeProduct.title}`
+  );
 }
 
 filterButtons.forEach((button) => {
@@ -158,24 +198,19 @@ filterButtons.forEach((button) => {
   });
 });
 
-searchInput.addEventListener("input", updateProducts);
-
-productCards.forEach((card) => {
-  const openButton = card.querySelector(".product-open");
-
-  openButton.addEventListener("click", () => {
-    openProductModal(card);
-  });
-});
+searchInput.addEventListener("input", renderProducts);
 
 closeModalButton.addEventListener("click", closeProductModal);
 modalOverlay.addEventListener("click", closeProductModal);
-modalBuyButton.addEventListener("click", openPurchaseFlow);
+modalBuyButton.addEventListener("click", startPurchase);
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+  if (
+    event.key === "Escape" &&
+    !modal.classList.contains("hidden")
+  ) {
     closeProductModal();
   }
 });
 
-updateProducts();
+renderProducts();
