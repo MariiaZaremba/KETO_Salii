@@ -1,4 +1,3 @@
-```js
 const telegram = window.Telegram?.WebApp;
 
 if (telegram) {
@@ -273,4 +272,3 @@ document.addEventListener("keydown", (event) => {
 });
 
 renderProducts();
-```
