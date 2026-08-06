@@ -83,19 +83,56 @@ async function getMonoPublicKey() {
     }
   );
 
-  if (!response.ok) {
-    const text = await response.text();
+  const rawResponse = await response.text();
 
+  if (!response.ok) {
     throw new Error(
-      `Не вдалося отримати public key Monobank: ${text}`
+      `Не вдалося отримати ключ Monobank: ${rawResponse}`
     );
   }
 
-  const publicKeyBase64 = await response.text();
+  /*
+    Monobank повертає Base64-закодований PEM-ключ.
+    Іноді відповідь може бути JSON-рядком у лапках.
+  */
+  let publicKeyBase64 = rawResponse.trim();
 
-  cachedPublicKey = Buffer
+  try {
+    const parsedResponse = JSON.parse(rawResponse);
+
+    if (typeof parsedResponse === "string") {
+      publicKeyBase64 = parsedResponse;
+    } else if (parsedResponse?.key) {
+      publicKeyBase64 = parsedResponse.key;
+    } else if (parsedResponse?.pubkey) {
+      publicKeyBase64 = parsedResponse.pubkey;
+    }
+  } catch {
+    // Відповідь не JSON — використовуємо як звичайний рядок.
+  }
+
+  publicKeyBase64 = publicKeyBase64
+    .trim()
+    .replace(/^"+|"+$/g, "");
+
+  const publicKeyPem = Buffer
     .from(publicKeyBase64, "base64")
-    .toString("utf8");
+    .toString("utf8")
+    .trim();
+
+  if (!publicKeyPem.includes("BEGIN PUBLIC KEY")) {
+    console.error("Decoded Monobank key:", publicKeyPem);
+
+    throw new Error(
+      "Monobank повернув відкритий ключ у неправильному форматі"
+    );
+  }
+
+  cachedPublicKey = crypto.createPublicKey({
+    key: publicKeyPem,
+    format: "pem",
+    type: "spki"
+  });
 
   return cachedPublicKey;
 }
@@ -107,14 +144,19 @@ async function verifyMonoSignature(rawBody, signatureBase64) {
 
   const publicKey = await getMonoPublicKey();
 
-  const verifier = crypto.createVerify("SHA256");
+  const signature = Buffer.from(
+    String(signatureBase64).trim(),
+    "base64"
+  );
 
-  verifier.update(rawBody);
-  verifier.end();
-
-  return verifier.verify(
-    publicKey,
-    Buffer.from(signatureBase64, "base64")
+  return crypto.verify(
+    "sha256",
+    rawBody,
+    {
+      key: publicKey,
+      dsaEncoding: "der"
+    },
+    signature
   );
 }
 
@@ -137,6 +179,12 @@ function parseReference(reference) {
 async function sendPdfToTelegram(chatId, product) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN_KETO;
   const appUrl = process.env.APP_URL_KETO.replace(/\/$/, "");
+
+  if (!botToken) {
+    throw new Error(
+      "TELEGRAM_BOT_TOKEN_KETO відсутній у Vercel"
+    );
+  }
 
   const pdfUrl =
     `${appUrl}/products/${encodeURIComponent(product.file)}`;
@@ -180,7 +228,10 @@ export default async function handler(req, res) {
 
   try {
     const rawBody = await readRawBody(req);
-    const signature = req.headers["x-sign"];
+
+    const signature =
+      req.headers["x-sign"] ||
+      req.headers["X-Sign"];
 
     const signatureIsValid = await verifyMonoSignature(
       rawBody,
@@ -196,14 +247,12 @@ export default async function handler(req, res) {
       });
     }
 
-    const payment = JSON.parse(rawBody.toString("utf8"));
+    const payment = JSON.parse(
+      rawBody.toString("utf8")
+    );
 
     console.log("Monobank webhook:", payment);
 
-    /*
-      Webhook приходить при кожній зміні статусу.
-      PDF видаємо тільки після успішної оплати.
-    */
     if (payment.status !== "success") {
       return res.status(200).json({
         success: true,
@@ -212,7 +261,9 @@ export default async function handler(req, res) {
       });
     }
 
-    const referenceData = parseReference(payment.reference);
+    const referenceData = parseReference(
+      payment.reference
+    );
 
     if (!referenceData) {
       console.error(
@@ -236,10 +287,6 @@ export default async function handler(req, res) {
       });
     }
 
-    /*
-      Додаткова перевірка:
-      оплачена сума повинна відповідати ціні товару.
-    */
     if (Number(payment.amount) !== product.amount) {
       console.error("Payment amount mismatch", {
         received: payment.amount,
@@ -260,7 +307,6 @@ export default async function handler(req, res) {
       productId,
       chatId
     });
-
   } catch (error) {
     console.error("Mono webhook error:", error);
 
