@@ -1,3 +1,4 @@
+```js
 const telegram = window.Telegram?.WebApp;
 
 if (telegram) {
@@ -26,6 +27,7 @@ const modalBuyButton = document.getElementById("modalBuyButton");
 
 let activeFilter = "all";
 let activeProduct = null;
+let paymentIsLoading = false;
 
 function formatPrice(price) {
   return `${price} грн`;
@@ -55,6 +57,14 @@ function getProductWord(count) {
   }
 
   return "товарів";
+}
+
+function showMessage(message) {
+  if (telegram?.showAlert) {
+    telegram.showAlert(message);
+  } else {
+    alert(message);
+  }
 }
 
 function createProductCard(product) {
@@ -165,6 +175,8 @@ function openProductModal(product) {
   modalImage.src = product.image;
   modalImage.alt = product.imageAlt;
 
+  modalBuyButton.textContent = "Купити";
+
   modal.classList.remove("hidden");
   document.body.classList.add("modal-open");
 
@@ -172,6 +184,10 @@ function openProductModal(product) {
 }
 
 function closeProductModal() {
+  if (paymentIsLoading) {
+    return;
+  }
+
   modal.classList.add("hidden");
   document.body.classList.remove("modal-open");
 
@@ -181,15 +197,58 @@ function closeProductModal() {
 async function startPurchase(event) {
   event.preventDefault();
 
-  if (!activeProduct) {
+  if (!activeProduct || paymentIsLoading) {
     return;
   }
 
+  const initData = telegram?.initData || "";
+
+  if (!initData) {
+    showMessage(
+      "Відкрийте магазин через кнопку Mini App у Telegram-боті."
+    );
+    return;
+  }
+
+  paymentIsLoading = true;
+  modalBuyButton.textContent = "Створюємо рахунок…";
+  modalBuyButton.style.pointerEvents = "none";
+
   telegram?.HapticFeedback?.impactOccurred("medium");
 
-  alert(
-    `Наступним кроком підключимо оплату для товару:\n${activeProduct.title}`
-  );
+  try {
+    const response = await fetch("/api/create-payment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        productId: activeProduct.id,
+        initData
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success || !result.pageUrl) {
+      throw new Error(
+        result.error || "Не вдалося створити рахунок"
+      );
+    }
+
+    if (telegram?.openLink) {
+      telegram.openLink(result.pageUrl);
+    } else {
+      window.location.href = result.pageUrl;
+    }
+  } catch (error) {
+    console.error("Payment error:", error);
+    showMessage(error.message || "Помилка створення оплати");
+  } finally {
+    paymentIsLoading = false;
+    modalBuyButton.textContent = "Купити";
+    modalBuyButton.style.pointerEvents = "";
+  }
 }
 
 filterButtons.forEach((button) => {
@@ -214,3 +273,4 @@ document.addEventListener("keydown", (event) => {
 });
 
 renderProducts();
+```
