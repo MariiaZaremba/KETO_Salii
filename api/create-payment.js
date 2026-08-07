@@ -149,7 +149,8 @@ export default async function handler(req, res) {
             comment: `PDF-матеріал: ${product.title}`
           },
 
-          redirectUrl: `https://t.me/${process.env.TELEGRAM_BOT_USERNAME_KETO}`,
+          redirectUrl:
+            `${process.env.APP_URL_KETO}/payment-success.html`,
 
           webHookUrl:
             `${process.env.APP_URL_KETO}/api/mono-webhook`,
