@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+
+  <title>Оплата успішна | KETOSALII</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+      background: #f7f4ea;
+      color: #20261d;
+    }
+
+    .card {
+      width: min(100%, 480px);
+      padding: 34px 24px;
+      border-radius: 28px;
+      background: #ffffff;
+      box-shadow: 0 16px 45px rgba(50, 68, 40, 0.12);
+      text-align: center;
+    }
+
+    .icon {
+      display: grid;
+      width: 74px;
+      height: 74px;
+      margin: 0 auto 20px;
+      place-items: center;
+      border-radius: 50%;
+      background: #dfeccd;
+      color: #4f6f37;
+      font-size: 36px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 30px;
+      line-height: 1.15;
+    }
+
+    p {
+      margin: 0;
+      color: #66705f;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .notice {
+      margin-top: 22px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #f1f5e9;
+      color: #4f6f37;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .button {
+      display: flex;
+      width: 100%;
+      min-height: 54px;
+      margin-top: 24px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      background: #6f8f4e;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .hint {
+      margin-top: 14px;
+      color: #8b9385;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <div class="icon">✓</div>
+
+    <h1>Оплата успішна!</h1>
+
+    <p>
+      Дякуємо за покупку. Ваш PDF уже надіслано
+      в Telegram-чат.
+    </p>
+
+    <div class="notice">
+      Поверніться до бота — придбаний матеріал уже чекає на вас.
+    </div>
+
+    <a
+      class="button"
+      href="tg://resolve?domain=KETOSALII_bot"
+    >
+      Повернутися в Telegram
+    </a>
+
+    <p class="hint">
+      На iPhone може з’явитися одне системне підтвердження «Open».
+    </p>
+  </main>
+</body>
+</html>
