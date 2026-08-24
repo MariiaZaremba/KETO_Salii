@@ -10,52 +10,97 @@ const PRODUCTS = {
   "guide-ig": {
     title: "Гайд «Інтервальне голодування»",
     amount: 23000,
-    file: "guide-ig.pdf"
+    files: [
+      {
+        file: "guide-ig.pdf",
+        caption: "Ваш гайд готовий 💛"
+      }
+    ]
   },
 
   "how-to-start": {
     title: "Чек-лист «Як почати КЕТО»",
     amount: 23000,
-    file: "how-to-start.pdf"
+    files: [
+      {
+        file: "how-to-start.pdf",
+        caption: "Ваш чек-лист готовий 💛"
+      }
+    ]
   },
 
   "products-list": {
     title: "Список продуктів для КЕТО",
     amount: 23000,
-    file: "products-list.pdf"
+    files: [
+      {
+        file: "products-list.pdf",
+        caption: "Ваш список продуктів готовий 💛"
+      }
+    ]
   },
 
   tracker: {
     title: "Трекер замірів тіла",
     amount: 6500,
-    file: "tracker.pdf"
+    files: [
+      {
+        file: "tracker.pdf",
+        caption: "Ваш трекер готовий 💛"
+      }
+    ]
   },
 
   "menu-1500": {
     title: "КЕТО меню на 1500 ккал",
     amount: 69000,
-    file: "menu-1500.pdf"
+    files: [
+      {
+        file: "menu-1500.pdf",
+        caption: "Ваше КЕТО меню на 1500 ккал готове 💛"
+      }
+    ]
   },
 
   "menu-1600": {
     title: "КЕТО меню на 1600 ккал",
     amount: 69000,
-    file: "menu-1600.pdf"
+    files: [
+      {
+        file: "menu-1600.pdf",
+        caption: "Ваше КЕТО меню на 1600 ккал готове 💛"
+      }
+    ]
   },
 
   "menu-1700": {
     title: "КЕТО меню на 1700 ккал",
     amount: 69000,
-    file: "menu-1700.pdf"
+    files: [
+      {
+        file: "menu-1700.pdf",
+        caption: "Ваше КЕТО меню на 1700 ккал готове 💛"
+      }
+    ]
+  },
+
+  "keto-laws": {
+    title: "КЕТО харчування: Основні закони",
+    amount: 23000,
+    files: [
+      {
+        file: "keto-laws-mobile.pdf",
+        caption: "📱 Електронна версія для мобільного пристрою"
+      },
+      {
+        file: "keto-laws-print.pdf",
+        caption: "🖨 Версія для друку"
+      }
+    ]
   }
 };
 
 let cachedPublicKey = null;
-
-
-/* =========================
-   READ RAW WEBHOOK BODY
-========================= */
 
 function readRawBody(req) {
   return new Promise((resolve, reject) => {
@@ -72,11 +117,6 @@ function readRawBody(req) {
     req.on("error", reject);
   });
 }
-
-
-/* =========================
-   MONOBANK PUBLIC KEY
-========================= */
 
 async function getMonoPublicKey() {
   if (cachedPublicKey) {
@@ -103,56 +143,61 @@ async function getMonoPublicKey() {
 
   let publicKeyBase64 = rawResponse.trim();
 
-  /*
-    На випадок, якщо Monobank поверне JSON
-    замість простого текстового рядка.
-  */
   try {
-    const parsedResponse = JSON.parse(rawResponse);
+    const parsedResponse =
+      JSON.parse(rawResponse);
 
-    if (typeof parsedResponse === "string") {
-      publicKeyBase64 = parsedResponse;
+    if (
+      typeof parsedResponse === "string"
+    ) {
+      publicKeyBase64 =
+        parsedResponse;
     } else if (parsedResponse?.key) {
-      publicKeyBase64 = parsedResponse.key;
-    } else if (parsedResponse?.pubkey) {
-      publicKeyBase64 = parsedResponse.pubkey;
+      publicKeyBase64 =
+        parsedResponse.key;
+    } else if (
+      parsedResponse?.pubkey
+    ) {
+      publicKeyBase64 =
+        parsedResponse.pubkey;
     }
   } catch {
-    // Це нормально — використовуємо rawResponse.
+    // Відповідь не JSON.
   }
 
-  publicKeyBase64 = publicKeyBase64
-    .trim()
-    .replace(/^"+|"+$/g, "");
+  publicKeyBase64 =
+    publicKeyBase64
+      .trim()
+      .replace(/^"+|"+$/g, "");
 
-  const publicKeyPem = Buffer
-    .from(publicKeyBase64, "base64")
-    .toString("utf8")
-    .trim();
+  const publicKeyPem =
+    Buffer
+      .from(
+        publicKeyBase64,
+        "base64"
+      )
+      .toString("utf8")
+      .trim();
 
-  if (!publicKeyPem.includes("BEGIN PUBLIC KEY")) {
-    console.error(
-      "Decoded Monobank key has unexpected format"
-    );
-
+  if (
+    !publicKeyPem.includes(
+      "BEGIN PUBLIC KEY"
+    )
+  ) {
     throw new Error(
       "Monobank повернув public key у неправильному форматі"
     );
   }
 
-  cachedPublicKey = crypto.createPublicKey({
-    key: publicKeyPem,
-    format: "pem",
-    type: "spki"
-  });
+  cachedPublicKey =
+    crypto.createPublicKey({
+      key: publicKeyPem,
+      format: "pem",
+      type: "spki"
+    });
 
   return cachedPublicKey;
 }
-
-
-/* =========================
-   VERIFY MONOBANK SIGNATURE
-========================= */
 
 async function verifyMonoSignature(
   rawBody,
@@ -162,12 +207,14 @@ async function verifyMonoSignature(
     return false;
   }
 
-  const publicKey = await getMonoPublicKey();
+  const publicKey =
+    await getMonoPublicKey();
 
-  const signature = Buffer.from(
-    String(signatureBase64).trim(),
-    "base64"
-  );
+  const signature =
+    Buffer.from(
+      String(signatureBase64).trim(),
+      "base64"
+    );
 
   return crypto.verify(
     "sha256",
@@ -177,18 +224,11 @@ async function verifyMonoSignature(
   );
 }
 
-
-/* =========================
-   PAYMENT REFERENCE
-
-   Format:
-   tg_CHATID_PRODUCTID_TIMESTAMP
-========================= */
-
 function parseReference(reference) {
-  const match = String(reference || "").match(
-    /^tg_(\d+)_([a-z0-9-]+)_(\d+)$/
-  );
+  const match =
+    String(reference || "").match(
+      /^tg_(\d+)_([a-z0-9-]+)_(\d+)$/
+    );
 
   if (!match) {
     return null;
@@ -201,21 +241,57 @@ function parseReference(reference) {
   };
 }
 
+async function sendTelegramMessage(
+  chatId,
+  text
+) {
+  const botToken =
+    process.env.TELEGRAM_BOT_TOKEN_KETO;
 
-/* =========================
-   SEND PDF TO TELEGRAM
-========================= */
+  const telegramUrl =
+    `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+  const response = await fetch(
+    telegramUrl,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type":
+          "application/json"
+      },
+
+      body: JSON.stringify({
+        chat_id: chatId,
+        text
+      })
+    }
+  );
+
+  const result =
+    await response.json();
+
+  if (
+    !response.ok ||
+    !result.ok
+  ) {
+    throw new Error(
+      `Telegram message error: ${JSON.stringify(result)}`
+    );
+  }
+}
 
 async function sendPdfToTelegram(
   chatId,
-  product,
+  fileData,
   invoiceId
 ) {
   const botToken =
     process.env.TELEGRAM_BOT_TOKEN_KETO;
 
   const appUrl =
-    process.env.APP_URL_KETO?.replace(/\/$/, "");
+    process.env.APP_URL_KETO
+      ?.replace(/\/$/, "");
 
   if (!botToken) {
     throw new Error(
@@ -229,31 +305,22 @@ async function sendPdfToTelegram(
     );
   }
 
-  /*
-    ВАЖЛИВО:
-    додаємо унікальний query parameter.
-
-    Це не дає Telegram / CDN використати
-    стару закешовану версію PDF.
-  */
-
-  const cacheVersion =
-    invoiceId || Date.now();
-
   const pdfUrl =
     `${appUrl}/products/` +
-    `${encodeURIComponent(product.file)}` +
-    `?v=${encodeURIComponent(cacheVersion)}`;
+    `${encodeURIComponent(fileData.file)}` +
+    `?v=${encodeURIComponent(invoiceId || Date.now())}`;
 
-  console.log("Sending PDF:", {
-    chatId,
-    file: product.file,
-    pdfUrl
-  });
+  console.log(
+    "Sending PDF:",
+    {
+      chatId,
+      file: fileData.file,
+      pdfUrl
+    }
+  );
 
   const telegramUrl =
-    `https://api.telegram.org/bot` +
-    `${botToken}/sendDocument`;
+    `https://api.telegram.org/bot${botToken}/sendDocument`;
 
   const response = await fetch(
     telegramUrl,
@@ -261,50 +328,61 @@ async function sendPdfToTelegram(
       method: "POST",
 
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type":
+          "application/json"
       },
 
       body: JSON.stringify({
         chat_id: chatId,
-
         document: pdfUrl,
-
         caption:
-          `Оплата успішна 🎉\n\n` +
-          `Дякуємо за покупку!\n\n` +
-          `Ваш матеріал «${product.title}» готовий 💛`
+          fileData.caption || ""
       })
     }
   );
 
-  const result = await response.json();
+  const result =
+    await response.json();
 
-  if (!response.ok || !result.ok) {
-    console.error(
-      "Telegram response:",
-      result
-    );
-
+  if (
+    !response.ok ||
+    !result.ok
+  ) {
     throw new Error(
       `Telegram error: ${JSON.stringify(result)}`
     );
   }
 
-  console.log(
-    "PDF successfully sent to Telegram",
-    {
-      chatId,
-      product: product.file
-    }
-  );
-
   return result;
 }
 
+async function deliverProduct(
+  chatId,
+  product,
+  invoiceId
+) {
+  if (product.files.length > 1) {
+    await sendTelegramMessage(
+      chatId,
+      `Оплата успішна 🎉\n\n` +
+      `Дякуємо за покупку!\n\n` +
+      `Ваш матеріал «${product.title}» готовий.\n\n` +
+      `Нижче надсилаємо дві версії:\n` +
+      `📱 для перегляду на мобільному пристрої\n` +
+      `🖨 для друку`
+    );
+  }
 
-/* =========================
-   MAIN WEBHOOK HANDLER
-========================= */
+  for (
+    const fileData of product.files
+  ) {
+    await sendPdfToTelegram(
+      chatId,
+      fileData,
+      invoiceId
+    );
+  }
+}
 
 export default async function handler(
   req,
@@ -318,21 +396,12 @@ export default async function handler(
   }
 
   try {
-
-    /* -------------------------
-       1. READ ORIGINAL BODY
-    ------------------------- */
-
     const rawBody =
       await readRawBody(req);
 
     const signature =
       req.headers["x-sign"] ||
       req.headers["X-Sign"];
-
-    /* -------------------------
-       2. VERIFY MONOBANK
-    ------------------------- */
 
     const signatureIsValid =
       await verifyMonoSignature(
@@ -351,29 +420,28 @@ export default async function handler(
       });
     }
 
-    /* -------------------------
-       3. PARSE PAYMENT
-    ------------------------- */
-
-    const payment = JSON.parse(
-      rawBody.toString("utf8")
-    );
+    const payment =
+      JSON.parse(
+        rawBody.toString("utf8")
+      );
 
     console.log(
       "Monobank webhook received:",
       {
-        invoiceId: payment.invoiceId,
-        status: payment.status,
-        amount: payment.amount,
-        reference: payment.reference
+        invoiceId:
+          payment.invoiceId,
+        status:
+          payment.status,
+        amount:
+          payment.amount,
+        reference:
+          payment.reference
       }
     );
 
-    /* -------------------------
-       4. ONLY SUCCESSFUL PAYMENT
-    ------------------------- */
-
-    if (payment.status !== "success") {
+    if (
+      payment.status !== "success"
+    ) {
       return res.status(200).json({
         success: true,
         ignored: true,
@@ -381,21 +449,12 @@ export default async function handler(
       });
     }
 
-    /* -------------------------
-       5. GET CHAT + PRODUCT
-    ------------------------- */
-
     const referenceData =
       parseReference(
         payment.reference
       );
 
     if (!referenceData) {
-      console.error(
-        "Invalid payment reference:",
-        payment.reference
-      );
-
       return res.status(400).json({
         success: false,
         error: "Invalid reference"
@@ -411,70 +470,41 @@ export default async function handler(
       PRODUCTS[productId];
 
     if (!product) {
-      console.error(
-        "Unknown product:",
-        productId
-      );
-
       return res.status(400).json({
         success: false,
         error: "Product not found"
       });
     }
 
-    /* -------------------------
-       6. CHECK AMOUNT
-    ------------------------- */
-
     if (
       Number(payment.amount) !==
       product.amount
     ) {
-      console.error(
-        "Payment amount mismatch",
-        {
-          received:
-            payment.amount,
-
-          expected:
-            product.amount,
-
-          productId
-        }
-      );
-
       return res.status(400).json({
         success: false,
-        error: "Payment amount mismatch"
+        error:
+          "Payment amount mismatch"
       });
     }
 
-    /* -------------------------
-       7. SEND PDF
-    ------------------------- */
-
-    await sendPdfToTelegram(
+    await deliverProduct(
       chatId,
       product,
       payment.invoiceId
     );
-
-    /* -------------------------
-       8. SUCCESS RESPONSE
-    ------------------------- */
 
     return res.status(200).json({
       success: true,
       delivered: true,
       invoiceId:
         payment.invoiceId,
-
       productId,
-      chatId
+      chatId,
+      filesSent:
+        product.files.length
     });
 
   } catch (error) {
-
     console.error(
       "Mono webhook error:",
       error
