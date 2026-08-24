@@ -5,29 +5,40 @@ const PRODUCTS = {
     title: "Гайд «Інтервальне голодування»",
     amount: 23000
   },
+
   "how-to-start": {
     title: "Чек-лист «Як почати КЕТО»",
     amount: 23000
   },
+
   "products-list": {
     title: "Список продуктів для КЕТО",
     amount: 23000
   },
+
   tracker: {
     title: "Трекер замірів тіла",
     amount: 6500
   },
+
   "menu-1500": {
     title: "КЕТО меню на 1500 ккал",
     amount: 69000
   },
+
   "menu-1600": {
     title: "КЕТО меню на 1600 ккал",
     amount: 69000
   },
+
   "menu-1700": {
     title: "КЕТО меню на 1700 ккал",
     amount: 69000
+  },
+
+  "keto-laws": {
+    title: "КЕТО харчування: Основні закони",
+    amount: 23000
   }
 };
 
@@ -65,7 +76,10 @@ function validateTelegramInitData(initData, botToken) {
 
   if (
     receivedBuffer.length !== calculatedBuffer.length ||
-    !crypto.timingSafeEqual(receivedBuffer, calculatedBuffer)
+    !crypto.timingSafeEqual(
+      receivedBuffer,
+      calculatedBuffer
+    )
   ) {
     return null;
   }
@@ -76,7 +90,8 @@ function validateTelegramInitData(initData, botToken) {
     return null;
   }
 
-  const ageInSeconds = Math.floor(Date.now() / 1000) - authDate;
+  const ageInSeconds =
+    Math.floor(Date.now() / 1000) - authDate;
 
   if (ageInSeconds > 60 * 60) {
     return null;
@@ -135,10 +150,12 @@ export default async function handler(req, res) {
       "https://api.monobank.ua/api/merchant/invoice/create",
       {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
           "X-Token": process.env.MONO_TOKEN_KETO
         },
+
         body: JSON.stringify({
           amount: product.amount,
           ccy: 980,
@@ -180,12 +197,18 @@ export default async function handler(req, res) {
       invoiceId: monoData.invoiceId,
       pageUrl: monoData.pageUrl
     });
+
   } catch (error) {
-    console.error("Create payment error:", error);
+    console.error(
+      "Create payment error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
-      error: error.message || "Помилка створення оплати"
+      error:
+        error.message ||
+        "Помилка створення оплати"
     });
   }
 }
