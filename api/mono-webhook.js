@@ -52,15 +52,19 @@ const PRODUCTS = {
   },
 
   "menu-1500": {
-    title: "КЕТО меню на 1500 ккал",
-    amount: 69000,
-    files: [
-      {
-        file: "menu-1500.pdf",
-        caption: "Ваше КЕТО-меню готове 💛"
-      }
-    ]
-  },
+  title: "КЕТО меню на 1500 ккал",
+  amount: 69000,
+  files: [
+    {
+      file: "menu-1500-mobile.pdf",
+      caption: "📱 Електронна версія для мобільного пристрою"
+    },
+    {
+      file: "menu-1500-print.pdf",
+      caption: "🖨 Версія для друку"
+    }
+  ]
+},
 
   "menu-1600": {
     title: "КЕТО меню на 1600 ккал",
