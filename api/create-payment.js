@@ -2,17 +2,17 @@ import crypto from "crypto";
 
 const PRODUCTS = {
   "guide-ig": {
-    title: "Гайд «Інтервальне голодування»",
+    title: "Інтервальне голодування",
     amount: 23000
   },
 
   "how-to-start": {
-    title: "Чек-лист «Як почати КЕТО»",
+    title: "Як почати КЕТО",
     amount: 23000
   },
 
   "products-list": {
-    title: "Список продуктів для КЕТО",
+    title: "Список продуктів",
     amount: 23000
   },
 
@@ -39,6 +39,16 @@ const PRODUCTS = {
   "keto-laws": {
     title: "КЕТО харчування: Основні закони",
     amount: 23000
+  },
+
+  "keto-meal-builder": {
+    title: "Конструктор кето-раціону",
+    amount: 59000
+  },
+
+  "keto-menu-lactose-free-1500": {
+    title: "КЕТО-меню 1500 ккал без лактози",
+    amount: 69000
   }
 };
 
@@ -76,10 +86,7 @@ function validateTelegramInitData(initData, botToken) {
 
   if (
     receivedBuffer.length !== calculatedBuffer.length ||
-    !crypto.timingSafeEqual(
-      receivedBuffer,
-      calculatedBuffer
-    )
+    !crypto.timingSafeEqual(receivedBuffer, calculatedBuffer)
   ) {
     return null;
   }
@@ -90,8 +97,7 @@ function validateTelegramInitData(initData, botToken) {
     return null;
   }
 
-  const ageInSeconds =
-    Math.floor(Date.now() / 1000) - authDate;
+  const ageInSeconds = Math.floor(Date.now() / 1000) - authDate;
 
   if (ageInSeconds > 60 * 60) {
     return null;
@@ -139,7 +145,7 @@ export default async function handler(req, res) {
       return res.status(401).json({
         success: false,
         error:
-          "Не вдалося підтвердити користувача Telegram. Відкрийте магазин через кнопку Mini App у боті."
+          "Не вдалося підтвердити користувача Telegram. Відкрийте магазин через Mini App у боті."
       });
     }
 
@@ -199,10 +205,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error(
-      "Create payment error:",
-      error
-    );
+    console.error("Create payment error:", error);
 
     return res.status(500).json({
       success: false,
