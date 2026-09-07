@@ -131,7 +131,22 @@ const PRODUCTS = {
         caption: "🖨 Версія для друку"
       }
     ]
-  }
+  },
+
+  "products-week": {
+  title: "Продукти на тиждень",
+  amount: 12000,
+  files: [
+    {
+      file: "products-week-mobile.pdf",
+      caption: "📱 Електронна версія для мобільного пристрою"
+    },
+    {
+      file: "products-week-print.pdf",
+      caption: "🖨 Версія для друку"
+    }
+  ]
+}
 };
 
 let cachedPublicKey = null;
