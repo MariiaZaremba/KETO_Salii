@@ -49,7 +49,12 @@ const PRODUCTS = {
   "keto-menu-lactose-free-1500": {
     title: "КЕТО-меню 1500 ккал без лактози",
     amount: 69000
-  }
+  },
+
+  "products-week": {
+  title: "Продукти на тиждень",
+  amount: 12000
+}
 };
 
 function validateTelegramInitData(initData, botToken) {
